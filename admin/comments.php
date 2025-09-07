@@ -1,6 +1,12 @@
     <?php
   require_once(__DIR__ ."/../middlewares/Admin.php");
 
+  if(!checkAdmin()){
+    die("Unauthorized access!");
+  }
+
+
+
   ?>
   <!DOCTYPE html>
 <html lang="en">
@@ -126,6 +132,11 @@
 
     
         </div>
+
+
+        <script>
+          
+        </script>
     
 </body>
 </html>

@@ -34,6 +34,19 @@ if(!isset($_POST["controller"])&&!isset($_POST["action"])){
                 $user_id = $_POST["user_id"]??null;
                 echo json_encode($controller->findById($user_id));
                 break;
+            case "update":
+                $data = [
+                    "user_id"=> $_POST["user_id"]??null,
+                    "username"=> $_POST["username"]??"",
+                    "email"=> $_POST["email"]??"",
+                    "name"=> $_POST["name"]??"",
+                    "bio"=> $_POST["bio"]??"",
+                    "role"=> $_POST["role"]??"user",
+                    "status"=> $_POST["status"]??"active",
+                    "email_verified"=> !empty($_POST["email_verified"])?"true":"false",
+                ];
+                echo json_encode($controller->update_user($data));
+                break;
             case "delete":
                 $user_id = $_POST["user_id"]??null;
                 echo json_encode($controller->delete($user_id));
@@ -76,6 +89,7 @@ if(!isset($_POST["controller"])&&!isset($_POST["action"])){
                 $data = [
                     "title"=> $_POST["title"]??"",
                     "content"=> $_POST["content"]??"",
+                    "excerpt"=> $_POST["excerpt"]??"",
                     "category"=> $_POST["category"]??"",
                     "status"=> $_POST["status"]??"pending",
                     "featured_image"=> $_FILES["featured_image"]??"",

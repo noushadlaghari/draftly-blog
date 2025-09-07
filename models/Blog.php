@@ -145,10 +145,22 @@ class Blog
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result();
-        if ($result->num_rows > 0) {
-            return $result->fetch_all(MYSQLI_ASSOC);
-        }
-        return false;
+        $blogs =  $result->fetch_all(MYSQLI_ASSOC)??[];
+
+
+        $count_query = "SELECT COUNT(*) as total FROM blogs WHERE user_id = ?";
+        $stmt = $this->conn->prepare($count_query);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $total = $result ->fetch_assoc()["total"]??0;
+        
+        return [
+            "total"=> $total,
+            "blogs"=> $blogs
+        ];
+        
+       
     }
 
     public function findByTitle($title)
@@ -215,7 +227,7 @@ class Blog
 
         $sql = "UPDATE blogs SET title=?,content=?, excerpt=?, featured_image=?,category_id=?, status = ?, featured=? WHERE id=?";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("sssissi", $data["title"], $data["content"], $data["excerpt"], $data["featured_image"], $data["category"], $data["status"], $data["featured"], $id);
+        $stmt->bind_param("ssssissi", $data["title"], $data["content"], $data["excerpt"], $data["featured_image"], $data["category"], $data["status"], $data["featured"], $id);
         $stmt->execute();
         if ($stmt->affected_rows > 0) {
             return true;

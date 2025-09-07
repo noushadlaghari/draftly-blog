@@ -196,11 +196,19 @@ class BlogController
         }
 
         $blogs = (new Blog())->findByUserId($id);
-        if ($blogs) {
-            return $blogs;
+        if (count($blogs["blogs"]) > 0) {
+            return [
+                "status"=> "success",
+                "blogs"=> $blogs["blogs"],
+                "total"=> $blogs["total"]
+            ];
         } else {
 
-            return false;
+            return [
+                "status"=> "error",
+                "message"=> "Not Found!",
+                "code"=> 404
+            ];
         }
     }
 
@@ -281,6 +289,9 @@ class BlogController
         }
         if (empty(trim(strip_tags($data["content"])))) {
             $errors["content"] = "Content Field is Required!";
+        }
+        if (empty(trim(strip_tags($data["excerpt"])))) {
+            $errors["excerpt"] = "Excerpt Field is Required!";
         }
 
         $file = $data["featured_image"] ?? null;

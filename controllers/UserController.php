@@ -159,9 +159,11 @@ class UserController
             ];
         }
 
-        $id = $_SESSION['id'];
-        $errors = array();
 
+
+        $id = $_SESSION['id'];
+
+        $errors = array();
         // Validation
         if (empty($data["email"])) {
             $errors["email"] = "Email Field is required!";
@@ -172,8 +174,6 @@ class UserController
         if (empty($data["name"])) {
             $errors["name"] = "Name field is required!";
         }
-
-
 
         $profile_image = null;
 
@@ -220,17 +220,15 @@ class UserController
                     $user = (new User())->findById($_SESSION["id"]);
 
 
-                    if(!empty($user["profile_image"])){
+                    if (!empty($user["profile_image"])) {
                         $previous_image = __DIR__ . "/../public/" . $user["profile_image"];
                         if ($previous_image) {
-    
+
                             if (file_exists($previous_image)) {
                                 unlink($previous_image);
                             }
                         }
-                        
                     }
-
                 } else {
                     $errors["profile_image"] = "Error uploading file!";
                 }
@@ -265,6 +263,36 @@ class UserController
             ];
         }
     }
+
+    public function update_user($data = array())
+    {
+
+        if (!checkAdmin()) {
+            return [
+                "status" => "error",
+                "message" => "Unauthorized Access!",
+                "code" => 401
+            ];
+        }
+
+            $user = new User();
+
+            if($user->update_user($data)){
+                return [
+                    "status"=> "success",
+                    "message"=> "User Details Update Successfully!"
+                    ];
+            }else{
+                return [
+                    "status"=> "error",
+                    "message"=> "No Changes were made!"
+                    ];
+            }
+
+        }
+
+     
+    
 
     public function update_password($data = array())
     {
