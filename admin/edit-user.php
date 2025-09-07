@@ -406,6 +406,8 @@ if (isset($_GET["user_id"])) {
             xhr.onreadystatechange = ()=>{
                 if(xhr.readyState==4 && xhr.status==200){
 
+                    console.log()
+
                 }
             }
             
