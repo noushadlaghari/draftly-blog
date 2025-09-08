@@ -7,7 +7,7 @@ $categories = (new CategoriesController())->findAll();
 
 
 $blogs = (new BlogController())->findAll(["limit"=>3,"offset",0])["blogs"];
-$featured_blogs = (new BlogController())->findFeatured();
+$featured_blogs = (new BlogController())->findFeatured()["featured"];
 
 
 ?>

@@ -163,8 +163,11 @@ class BlogController
     public function findFeatured()
     {
         $featured = (new Blog())->findFeatured();
-        if ($featured) {
-            return $featured;
+        if (count($featured) > 0) {
+            return [
+                "status"=> "success",
+                "featured"=> $featured
+            ];
         }
         return false;
     }

@@ -1,4 +1,6 @@
 <?php
+
+
 require_once(__DIR__ . "/../models/Comment.php");
 
 
@@ -27,6 +29,26 @@ class CommentsController
         }
     }
 
+
+    public function findAll($offset = 0,$limit = 8)
+    {
+      $comments = (new Comment())->findAll($offset, $limit);
+      
+
+        if (count($comments) > 0) {
+            return [
+                "status" => "success",
+                "comments" => $comments["comments"],
+                "total"=> $comments["total"],
+            ];
+        } else {
+            return [
+                "status" => "error",
+                "message" => "Comments Not Found!",
+                "code" => 404
+            ];
+        }
+    }
     public function findByBlogId($id)
     {
 
@@ -40,7 +62,7 @@ class CommentsController
     public function findById($id)
     {
         $comment = (new Comment())->findById($id);
-        if ($comment) {
+        if (count($comment) > 0) {
             return $comment;
         }
         return false;
@@ -72,5 +94,60 @@ class CommentsController
 
             ];
         }
+    }
+
+    public function approve($id){
+        $commentModel = new Comment();
+        $comment = (new Comment())->findById($id);
+        if (count($comment) > 0) {
+            
+            if($commentModel->approve($id)) {
+                return [
+                    "status"=> "success",
+                    "message"=> "Comment Approved Successfully!"
+                    ];
+            }else{
+                return [
+                    "status"=> "error",
+                    "message"=> "Unkown Error During Comment Approval!"
+                    ];
+            }
+
+        }else{
+            return [
+                "status"=>"error",
+                "message"=> "Comment Not Found!",
+                "code"=> 404
+            ];
+        }
+    }
+
+    public function delete($id)
+    {
+        $commentModel = new Comment();
+
+        $comment = (new Comment())->findById($id);
+
+        if(count($comment) > 0) {
+            if($commentModel->delete($id)) {
+                return [
+                    "status"=> "success",
+                    "message"=> "Comment Deleted Successfully!"
+                    ];
+            }else{
+                return [
+                    "status"=> "error",
+                    "message"=> "Unknown Error During Delete!"
+                    ];
+                }
+
+        }else{
+            return [
+                "status"=> "error",
+                "message"=> "Comment Not Found!",
+                "code"=> 404
+                ];
+            }
+
     }
 }

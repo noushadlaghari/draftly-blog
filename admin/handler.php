@@ -74,15 +74,15 @@ if(!isset($_POST["controller"])&&!isset($_POST["action"])){
                 ];
                 echo json_encode($controller->findAll($data));
                 break;
-            case "delete":
-                $blog_id = $_POST["blog_id"]??null;
-                echo json_encode($controller->delete($blog_id));
-                break;
-
-            case "findById":
-                $blog_id = $_POST["blog_id"]??null;
-                echo json_encode($controller->findById($blog_id));
-                break;
+                case "delete":
+                    $blog_id = $_POST["blog_id"]??null;
+                    echo json_encode($controller->delete($blog_id));
+                    break;
+                    
+                    case "findById":
+                        $blog_id = $_POST["blog_id"]??null;
+                        echo json_encode($controller->findById($blog_id));
+                        break;
 
             case "update":
                 $blog_id = $_POST["blog_id"]??null;
@@ -96,12 +96,34 @@ if(!isset($_POST["controller"])&&!isset($_POST["action"])){
                     "featured"=> $_POST["featured"]??"off",
                 ];
                 echo json_encode($controller->update($blog_id,$data));
-              
+                
                 break;
+                
+                
+                
+            }
+        }
+        
+        if($controller == "CommentsController"){
 
-            
+            require_once(__DIR__ ."/../controllers/CommentsController.php");
+            $comments_controller = new CommentsController();
+
+            switch($action){
+                case "findAll":
+                    $offset = $_POST["offset"]??null;
+                    echo json_encode($comments_controller->findAll($offset));
+                    break;
+
+                case "approve":
+                    $comment_id = $_POST["comment_id"]??null;
+                    echo json_encode($comments_controller->approve($comment_id));
+                    break;
+                case "delete":
+                    $comment_id = $_POST["comment_id"]??null;
+                    echo json_encode($comments_controller->delete($comment_id));
+                    break;
 
             }
-    }
-
-?>
+        }
+            ?>

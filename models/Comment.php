@@ -29,16 +29,24 @@ class Comment
         return false;
     }
 
-    public function findAll()
+    public function findAll($offset=0,$limit=8)
     {
-        $sql = "SELECT * FROM comments";
+        $sql = "SELECT c.*, u.name as author, b.id as blog_id, b.title as blog_title FROM comments c JOIN users u ON c.user_id = u.id JOIN blogs b ON c.blog_id = b.id LIMIT ?, ?";
         $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ii", $offset,$limit);
         $stmt->execute();
         $result = $stmt->get_result();
-        if ($result->num_rows > 0) {
-            return $result->fetch_all(MYSQLI_ASSOC);
-        }
-        return false;
+        $comments = $result->fetch_all(MYSQLI_ASSOC)??[];
+
+        $count_query = "SELECT COUNT(*) as total FROM comments";
+        $result = $this->conn->query($count_query);
+        $total = $result->fetch_assoc()["total"];
+
+        return [
+            "comments"=> $comments,
+            "total"=> $total
+        ];
+      
     }
 
     public function findByBlogId($id)
@@ -60,11 +68,9 @@ class Comment
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result();
-        if ($result->num_rows > 0) {
-            return $result->fetch_assoc();
-        } else {
-            return false;
-        }
+        
+        return $result->fetch_assoc()??[];
+      
     }
 
     public function update($id,$data){
@@ -82,6 +88,18 @@ class Comment
             return false;
         }
 
+    }
+
+    public function approve($id){
+        $status = "approved";
+        $sql = "UPDATE comments SET status = ? WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("si", $status, $id);
+        $stmt->execute();
+        if($stmt->affected_rows> 0){
+            return true;
+        }
+        return false;
     }
     public function delete($id){
         $sql = "DELETE FROM comments WHERE id=?";

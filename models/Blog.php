@@ -202,10 +202,9 @@ class Blog
         $stmt->bind_param("s", $featured);
         $stmt->execute();
         $result = $stmt->get_result();
-        if ($result->num_rows > 0) {
-            return $result->fetch_all(MYSQLI_ASSOC);
-        }
-        return false;
+ 
+        return $result->fetch_all(MYSQLI_ASSOC)??[];
+     
     }
 
     public function create()
