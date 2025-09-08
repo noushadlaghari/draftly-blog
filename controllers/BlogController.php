@@ -146,10 +146,38 @@ class BlogController
         ];
     }
 
+    public function topBlogs(){
+        $blogModel = new Blog();
+        $blogs = $blogModel->topBlogs();
+
+        if ($blogs && count($blogs) > 0) {
+            return [
+                "status"=> "success",
+                "blogs"=> $blogs,
+            ];
+        }else{
+            return [
+                "status"=> "error",
+                "message"=> "Not Found!",
+                "code"=> 404
+            ];
+        }
+    }
     public function count()
     {
         $count = (new Blog())->count();
+        
         return $count;
+    }
+
+    public function addView($id){
+        $blogModel = new Blog();
+        if($blogModel->addView($id)){
+            return [
+                "status"=> "success",
+                "message"=> "View Added",
+            ];
+        }
     }
 
     public function findById($id)

@@ -69,11 +69,22 @@ class User
 
         $result = $stmt->get_result();
 
-        $data = $result->fetch_all(MYSQLI_ASSOC);
+        $data = $result->fetch_all(MYSQLI_ASSOC)??[];
 
         $stmt->close();
 
         return $data;
+    }
+
+    public function count(){
+        $sql = "SELECT COUNT(*) as total FROM users";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $total = $result->fetch_assoc()["total"]??0;
+
+        return $total;
+
     }
 
     public function create()

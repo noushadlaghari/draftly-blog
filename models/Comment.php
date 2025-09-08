@@ -49,6 +49,17 @@ class Comment
       
     }
 
+        public function count(){
+        $sql = "SELECT COUNT(*) as total FROM comments";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $total = $result->fetch_assoc()["total"]??0;
+
+        return $total;
+
+    }
+
     public function findByBlogId($id)
     {
         $sql = "SELECT c.*, u.name as author, u.id as user_id, u.profile_image, u.role FROM comments c JOIN users u ON c.user_id=u.id WHERE c.blog_id = ?";

@@ -10,6 +10,13 @@ if (isset($_GET["id"])) {
     exit;
   }
 
+  $cookieName = "viewed_blog_" . $blog["id"];
+
+  if (!isset($_COOKIE[$cookieName])) {
+    $controller->addView($blog["id"]);
+    setcookie($cookieName, "1", time() + 86400, "/");
+  }
+
   $related = $controller->findByCategory(["category_id" => $blog["category_id"], "limit" => 6, "offset" => 0]);
 } else {
   header("location: not-found.php");
@@ -278,8 +285,6 @@ if (isset($_GET["id"])) {
     .badge.bg-primary {
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
     }
-
-
   </style>
 </head>
 
@@ -297,8 +302,11 @@ if (isset($_GET["id"])) {
     <div class="container">
       <h1 id="blog-title"><?= $blog["title"] ?></h1>
       <div class="blog-meta">
+        
         <span><i class="fas fa-user"></i> By <a href="author.php?user_id=<?= $blog["user_id"] ?>"><strong><?= $blog["username"] ?></strong></a></span> •
-        <span><i class="fas fa-calendar"></i> <?= date('F j, Y', strtotime($blog["created_at"])) ?></span> •
+        <span><i class="fas fa-calendar"></i> <?= date('F j, Y', strtotime($blog["created_at"])) ?></span> •  
+        
+          <span id="views-count"><i class="fas fa-eye"></i><?= $blog["views_count"] ?> views</span> •  
         <span><i class="fas fa-clock"></i> <?= max(1, round(str_word_count($blog["content"]) / 120)) ?> min read
         </span>
       </div>

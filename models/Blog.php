@@ -112,14 +112,36 @@ class Blog
 
 
 
-    public function count()
-    {
-        $sql = "SELECT COUNT(*) as total FROM blogs";
+    public function count(){
+        $sql = "SELECT COUNT(*) as total FROM users";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
         $result = $stmt->get_result();
-        $row = $result->fetch_assoc();
-        return (int) $row['total'];
+        $total = $result->fetch_assoc()["total"]??0;
+
+        return $total;
+
+    }
+
+    public function addView($id){
+        $sql = "UPDATE blogs SET views_count=views_count+1 WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+      
+        if($stmt->affected_rows>0){
+            return true;
+        }
+        return false;
+
+    }
+    public function topBlogs(){
+        $sql = "SELECT b.*, u.name as author FROM blogs b JOIN users u ON b.user_id = u.id ORDER BY views_count DESC LIMIT 0,3";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $blogs = $result->fetch_all(MYSQLI_ASSOC)??[];  
+        return $blogs;
     }
 
 

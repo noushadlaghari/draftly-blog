@@ -1,19 +1,28 @@
 <?php
-require_once(__DIR__ ."/../middlewares/Admin.php");
-require_once(__DIR__ ."/../controllers/BlogController.php");
-require_once(__DIR__ ."/../controllers/CommentsController.php");
-require_once(__DIR__ ."/../controllers/UserController.php");
-
-$total_blogs = ((new BlogController())->count())??0;
-$total_users = (new UserController());
-
-if(!checkAdmin()){
+require_once(__DIR__ . "/../middlewares/Admin.php");
+require_once(__DIR__ . "/../controllers/BlogController.php");
+require_once(__DIR__ . "/../controllers/UserController.php");
+require_once(__DIR__ . "/../controllers/CommentsController.php");
+require_once(__DIR__ . "/../controllers/ContactsController.php");
+if (!checkAdmin()) {
   die("Unauthorized Access");
 }
+
+$total_blogs = ((new BlogController())->count()) ?? 0;
+$total_users = (new UserController())->count() ?? 0;
+$total_comments = (new CommentsController())->count() ?? 0;
+$total_contact = (new ContactsController())->count() ?? 0;
+
+
+$top_blogs = (new BlogController())->topblogs()["blogs"];
+
+
+
 
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -125,7 +134,9 @@ if(!checkAdmin()){
       color: white;
     }
 
-    h4, h5, h6 {
+    h4,
+    h5,
+    h6 {
       color: var(--text-primary);
       font-weight: 600;
     }
@@ -166,6 +177,7 @@ if(!checkAdmin()){
     }
   </style>
 </head>
+
 <body>
   <!-- Sidebar -->
   <div class="sidebar">
@@ -184,7 +196,7 @@ if(!checkAdmin()){
     <nav class="navbar navbar-light shadow-sm mb-4 rounded">
       <div class="container-fluid">
         <span class="navbar-brand mb-0 h5">Welcome, Admin</span>
-        <button class="btn btn-outline-danger btn-sm"><i class="fas fa-sign-out-alt me-1"></i> Logout</button>
+        <a class="btn btn-outline-danger btn-sm" href="./../logout.php"><i class="fas fa-sign-out-alt me-1"></i> Logout</a>
       </div>
     </nav>
 
@@ -194,25 +206,25 @@ if(!checkAdmin()){
         <div class="col-md-3">
           <div class="card p-3 stat-card">
             <h5><i class="fas fa-users me-1"></i> Users</h5>
-            <p class="display-6">120</p>
+            <p class="display-6"><?= $total_users ?></p>
           </div>
         </div>
         <div class="col-md-3">
           <div class="card p-3 stat-card">
             <h5><i class="fas fa-blog me-1"></i> Blogs</h5>
-            <p class="display-6"><?=$total_blogs?></p>
+            <p class="display-6"><?= $total_blogs ?></p>
           </div>
         </div>
         <div class="col-md-3">
           <div class="card p-3 stat-card">
             <h5><i class="fas fa-comments me-1"></i> Comments</h5>
-            <p class="display-6">1.2k</p>
+            <p class="display-6"><?= $total_comments ?></p>
           </div>
         </div>
         <div class="col-md-3">
           <div class="card p-3 stat-card">
-            <h5><i class="fas fa-envelope me-1"></i> Messages</h5>
-            <p class="display-6">35</p>
+            <h5><i class="fas fa-envelope me-1"></i> Queries</h5>
+            <p class="display-6"><?= $total_contact ?></p>
           </div>
         </div>
       </div>
@@ -220,39 +232,39 @@ if(!checkAdmin()){
       <!-- Latest Blogs -->
       <div class="card p-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h4><i class="fas fa-blog me-2"></i> Latest Blogs</h4>
-          <a href="blogs.php" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i> Add New Blog</a>
+          <h4><i class="fas fa-blog me-2"></i> Top Blogs</h4>
+          <a href="./../add-new-blog.php" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i> Add New Blog</a>
         </div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item">
-            <div class="d-flex w-100 justify-content-between">
-              <h6 class="mb-1">Understanding PHP OOP Concepts</h6>
-              <small class="text-muted">2 days ago</small>
-            </div>
-            <small class="text-muted">by John Doe</small>
-            <p class="mb-1 mt-2">An introductory guide to PHP OOP concepts with examples...</p>
-          </li>
-          <li class="list-group-item">
-            <div class="d-flex w-100 justify-content-between">
-              <h6 class="mb-1">Bootstrap 5 Tips for Responsive Design</h6>
-              <small class="text-muted">4 days ago</small>
-            </div>
-            <small class="text-muted">by Jane Smith</small>
-            <p class="mb-1 mt-2">Some lesser-known tricks to make Bootstrap responsive design easier...</p>
-          </li>
-          <li class="list-group-item">
-            <div class="d-flex w-100 justify-content-between">
-              <h6 class="mb-1">How to Secure Your PHP Application</h6>
-              <small class="text-muted">1 week ago</small>
-            </div>
-            <small class="text-muted">by Admin</small>
-            <p class="mb-1 mt-2">Best practices to avoid SQL injection, XSS, and other vulnerabilities...</p>
-          </li>
+
+
+          <?php if ($top_blogs): ?>
+            <?php foreach ($top_blogs as $blog): ?>
+              <li class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                  <a href="./../single-post.php?id=<?=$blog["id"]?>" class="text-decoration-none">
+                    
+                    <h5 class="mb-1"><?= htmlspecialchars($blog["title"]) ?></h5>
+                  </a>
+                  <small class="text-muted">
+                    <?= date("M d, Y", strtotime($blog["created_at"])) ?>
+                  </small>
+                </div>
+                <small class="text-muted">
+                  <?= htmlspecialchars($blog["author"]) ?> • 👁️ <?= (int)$blog["views_count"] ?> views
+                </small>
+                <p class="mb-1 mt-2"><?= substr(strip_tags($blog['content']), 0, 100) ?>...</p>
+              </li>
+            <?php endforeach; ?>
+          <?php endif; ?>
+
+
         </ul>
       </div>
     </div>
   </div>
-  
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

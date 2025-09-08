@@ -8,13 +8,6 @@ class UserController
 {
 
 
-    public function index()
-    {
-
-        // $users = (new User())->findAll();
-
-        require("./../admin/index.php");
-    }
     public function register($data = array())
     {
 
@@ -148,6 +141,12 @@ class UserController
         ];
     }
 
+       public function count()
+    {
+        $count = (new User())->count();
+        
+        return $count;
+    }
     public function update_details($data = array())
     {
 

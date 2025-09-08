@@ -49,6 +49,14 @@ class CommentsController
             ];
         }
     }
+
+       public function count()
+    {
+        $count = (new Comment())->count();
+        
+        return $count;
+    }
+    
     public function findByBlogId($id)
     {
 
