@@ -287,7 +287,7 @@ $categories = (new CategoriesController())->findAll()["categories"];
 
 
   <script>
-    let limit = 3;
+    let limit = 8;
     let offset = 0;
     let category_id = 0;
     let query = "";
@@ -337,7 +337,7 @@ $categories = (new CategoriesController())->findAll()["categories"];
           if (response.status == "success") {
             response.blogs.forEach(blog => {
               blogsContainer.innerHTML += `
-                                <div class="col-lg-4 col-md-6">
+                                <div class="col-lg-3 col-md-6">
                                     <div class="card">
                                         <img src="public/${blog.featured_image}" class="card-img-top" alt="Blog">
                                           <span class="position-absolute top-0 end-0 bg-primary text-white px-3 py-1 m-3 rounded-pill small">${blog.category}</span>

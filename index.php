@@ -6,7 +6,7 @@ require_once(__DIR__ ."/controllers/CategoriesController.php");
 $categories = (new CategoriesController())->findAll()["categories"];
 
 
-$blogs = (new BlogController())->findAll(["limit"=>3,"offset",0])["blogs"];
+$blogs = (new BlogController())->findAll(["limit"=>3,"offset"=>0])["blogs"];
 $featured_blogs = (new BlogController())->findFeatured()["featured"];
 
 

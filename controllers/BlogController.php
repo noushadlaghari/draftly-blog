@@ -112,7 +112,6 @@ class BlogController
     {
         $blogModel = new Blog();
 
-
         if (!empty($data["query"]) || !empty($data["category_id"])) {
 
             $blogs = $blogModel->search($data);

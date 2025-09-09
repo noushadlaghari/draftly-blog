@@ -50,8 +50,8 @@ class Blog
     {
         $query = "%" . $data["query"] . "%";
         $category_id = $data["category_id"];
-        $offset = $data["offset"];
-        $limit = $data["limit"];
+        $offset = $data["offset"]??0;
+        $limit = $data["limit"]??8;
 
         // Base SQL for rows
         if ($category_id == 0) {

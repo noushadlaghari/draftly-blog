@@ -25,7 +25,7 @@ if ($controller == "UserController") {
 
     switch ($action) {
         case "findAll":
-            $offset = $_POST["offset"]??0;
+            $offset = $_POST["offset"] ?? 0;
             echo json_encode($controller->findAll($offset));
             break;
 
@@ -68,6 +68,10 @@ if ($controller == "BlogController") {
         case "findAll":
             $data = [
                 "offset" => $_POST["offset"] ?? 0,
+                "query" => $_POST["query"] ?? "",
+                "category_id" => $_POST["category_id"] ?? 0,
+                "limit"=>8
+
             ];
             echo json_encode($controller->findAll($data));
             break;
@@ -125,7 +129,7 @@ if ($controller == "CommentsController") {
     }
 }
 
-if($controller == "CategoriesController"){
+if ($controller == "CategoriesController") {
     require_once(__DIR__ . "/../controllers/CategoriesController.php");
 
     $categories_controller = new CategoriesController();
@@ -141,20 +145,20 @@ if($controller == "CategoriesController"){
             $category_id = $_POST["category_id"] ?? null;
             echo json_encode($categories_controller->findById($category_id));
             break;
-            
+
         case "create":
             $data = [
-                "category_name"=> $_POST["category_name"] ?? "",
-                "category_slug"=> $_POST["category_slug"] ??"",
+                "category_name" => $_POST["category_name"] ?? "",
+                "category_slug" => $_POST["category_slug"] ?? "",
             ];
             echo json_encode($categories_controller->create($data));
             break;
 
         case "update":
             $data = [
-                "category_id"=> $_POST["category_id"] ?? null,
-                "category_name"=> $_POST["category_name"] ?? null,
-                "category_slug"=> $_POST["category_slug"] ?? null
+                "category_id" => $_POST["category_id"] ?? null,
+                "category_name" => $_POST["category_name"] ?? null,
+                "category_slug" => $_POST["category_slug"] ?? null
             ];
             echo json_encode($categories_controller->update($data));
             break;
@@ -162,7 +166,6 @@ if($controller == "CategoriesController"){
             $id = $_POST["category_id"] ?? null;
             echo json_encode($categories_controller->delete($id));
             break;
-
     }
 }
 
