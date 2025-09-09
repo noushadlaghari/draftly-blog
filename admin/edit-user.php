@@ -178,10 +178,10 @@ if (isset($_GET["user_id"])) {
   <div class="sidebar">
     <h4 class="text-center mb-4">Draftly Admin</h4>
     <a href="index.php"><i class="fas fa-chart-bar me-2"></i> Dashboard</a>
-    <a href="users.php"><i class="fas fa-users me-2"></i> Manage Users</a>
+    <a href="users.php" class="active"><i class="fas fa-users me-2"></i> Manage Users</a>
     <a href="blogs.php"><i class="fas fa-blog me-2"></i> Manage Blogs</a>
     <a href="categories.php"><i class="fas fa-blog me-2"></i> Manage Categories</a>
-    <a href="comments.php" class="active"><i class="fas fa-comments me-2"></i> Comments</a>
+    <a href="comments.php"><i class="fas fa-comments me-2"></i> Comments</a>
     <a href="contact.php"><i class="fas fa-envelope me-2"></i> Contact Messages</a>
     <a href="profile.php"><i class="fas fa-cog me-2"></i> My Profile</a>
   </div>
@@ -227,7 +227,7 @@ if (isset($_GET["user_id"])) {
 
                         <div class="text-center mb-4">
                             <?php if (!empty($user['profile_image'])): ?>
-                                <img src="../public/<?= $user['profile_image'] ?>" class="profile-picture mb-3" alt="Profile Picture">
+                                <img src="./../public/<?= $user['profile_image'] ?>" class="profile-picture mb-3" alt="Profile Picture">
                             <?php else: ?>
                                 <div class="profile-picture mb-3 bg-light d-flex align-items-center justify-content-center mx-auto">
                                     <i class="fas fa-user fa-3x text-secondary"></i>

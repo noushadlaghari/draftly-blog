@@ -74,6 +74,7 @@ class UserController
     public function login($data = array())
     {
 
+
         $response = array();
 
         if (isset($data["email"]) && isset($data["password"])) {
@@ -87,6 +88,8 @@ class UserController
 
 
                     $_SESSION["id"] = $user["id"];
+
+                   $status =  (new User())->updateLoginStatus($user["id"]);
 
                     return [
                         "status" => "success",

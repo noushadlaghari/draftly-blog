@@ -9,7 +9,7 @@ if(!checkAdmin()){
 
 $blog_id = isset($_GET['blog_id']) ? intval($_GET['blog_id']) : 0;
 $blog = (new BlogController())->findById($blog_id);
-$categories = (new CategoriesController())->findAll();
+$categories = (new CategoriesController())->findAll()["categories"];
 ?>
 
 <!DOCTYPE html>
@@ -204,9 +204,9 @@ $categories = (new CategoriesController())->findAll();
     <h4 class="text-center mb-4">Draftly Admin</h4>
     <a href="index.php"><i class="fas fa-chart-bar me-2"></i> Dashboard</a>
     <a href="users.php"><i class="fas fa-users me-2"></i> Manage Users</a>
-    <a href="blogs.php"><i class="fas fa-blog me-2"></i> Manage Blogs</a>
+    <a href="blogs.php" class="active"><i class="fas fa-blog me-2"></i> Manage Blogs</a>
     <a href="categories.php"><i class="fas fa-blog me-2"></i> Manage Categories</a>
-    <a href="comments.php" class="active"><i class="fas fa-comments me-2"></i> Comments</a>
+    <a href="comments.php"><i class="fas fa-comments me-2"></i> Comments</a>
     <a href="contact.php"><i class="fas fa-envelope me-2"></i> Contact Messages</a>
     <a href="profile.php"><i class="fas fa-cog me-2"></i> My Profile</a>
   </div>

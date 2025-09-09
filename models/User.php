@@ -2,6 +2,10 @@
 
 require_once(__DIR__ . "/../database/database.php");
 
+date_default_timezone_set("Asia/Karachi");
+
+
+
 class User
 {
 
@@ -109,6 +113,19 @@ class User
         } else {
             return false;
         }
+    }
+
+    public function updateLoginStatus($id){
+        $date = date('Y-m-d H:i:s');
+        $sql = "UPDATE users SET last_login = ? WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("si",$date, $id);
+        $stmt->execute();
+        if ($stmt->affected_rows > 0) {
+            return true;
+        }
+        return false;
+        
     }
 
 
