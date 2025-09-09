@@ -1,5 +1,9 @@
 <?php
 require_once(__DIR__ . "/../middlewares/Admin.php");
+
+if (!checkAdmin()) {
+  die("Unauthorized Access!");
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -188,7 +192,7 @@ require_once(__DIR__ . "/../middlewares/Admin.php");
         <table class="table table-hover align-middle">
           <thead>
             <tr>
-              <th>#</th>
+              <th>Id</th>
               <th>Title</th>
               <th>Author</th>
               <th>Status</th>
@@ -201,14 +205,14 @@ require_once(__DIR__ . "/../middlewares/Admin.php");
           <nav aria-label="Blog pagination">
             <ul class="pagination">
               <li class="page-item">
-                <a href="#" class="page-link" onclick="previous(); return false;">
+                <button id="previous" class="page-link" onclick="previous()">
                   <i class="fas fa-chevron-left me-1"></i> Previous
-                </a>
+                </button>
               </li>
               <li class="page-item">
-                <a class="page-link" href="#" onclick="next(); return false;">
+                <button id="next" class="page-link" onclick="next()">
                   Next <i class="fas fa-chevron-right ms-1"></i>
-                </a>
+                </button>
               </li>
             </ul>
           </nav>
@@ -217,31 +221,36 @@ require_once(__DIR__ . "/../middlewares/Admin.php");
     </div>
   </div>
 
+
+  <script src="js/define.js"></script>
   <script>
     let offset = 0;
-    let limit = 6;
-    let disable_next = false;
+    let limit = 8;
+    let total = 0;
     let blogs_container = document.getElementById("blogs_container");
-    let message = document.getElementById("message");
 
-    function loadBlogs() {
+    async function loadBlogs() {
       let formdata = new FormData();
       formdata.append("controller", "BlogController");
       formdata.append("action", "findAll");
       formdata.append("offset", offset);
-      formdata.append("limit", limit);
-      
-      let xhr = new XMLHttpRequest();
-      xhr.onreadystatechange = () => {
-        if (xhr.status == 200 && xhr.readyState == 4) {
-          let response = JSON.parse(xhr.responseText);
-          
-          if (response && response["status"] == "success") {
-            blogs_container.innerHTML = "";
-            let blogs = response.blogs;
 
-            blogs.forEach(blog => {
-              blogs_container.innerHTML += `           
+      let response = await request("./handler.php", formdata);
+
+      if (!response) {
+        showMessage("danger", "Something Went Wrong!");
+        return;
+      }
+
+      if (response.status && response.status == "success") {
+
+        blogs_container.innerHTML = "";
+        let blogs = response.blogs;
+        total = response.total;
+
+        blogs.forEach(blog => {
+
+          blogs_container.innerHTML += `           
                 <tr>
                   <td>${blog.id}</td>
                   <td>${blog.title}</td>
@@ -264,65 +273,65 @@ require_once(__DIR__ . "/../middlewares/Admin.php");
                   </td>
                 </tr>
               `;
-            });
-          } else {
-            disable_next = true;
-          }
-        }
+        });
+
+        document.getElementById("next").disabled = (offset+limit)>=total;
+        document.getElementById("previous").disabled = offset==0;
+
+        
+      } else if (response.status && response.status == "error") {
+
+        showMessage("danger", response.message);
+
+      } else {
+        showMessage("danger", "Something Went Wrong!");
       }
-      xhr.open("POST", "./handler.php", true);
-      xhr.send(formdata);
+
     }
 
     loadBlogs();
 
-    function deleteBlog(id) {
-      if(!confirm("Are you sure you want to delete this blog?")) {
+    async function deleteBlog(id){
+
+        if (!confirm("Are you sure you want to delete this blog?")) {
         return;
       }
-      
+
       let formdata = new FormData();
       formdata.append("controller", "BlogController");
       formdata.append("action", "delete");
       formdata.append("blog_id", id);
-      
-      let xhr = new XMLHttpRequest();
-      xhr.onreadystatechange = () => {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-          let response = JSON.parse(xhr.responseText);
 
-          if (response && response.status == "success") {
-            message.innerHTML = `
-              <div class="alert alert-success alert-dismissible fade show" role="alert">
-                ${response.message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-            `;
-            loadBlogs();
-          } else {
-            message.innerHTML = `
-              <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                ${response.message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-            `;
-          }
+      let response = await request("./handler.php",formdata);
 
-          setTimeout(() => {
-            message.innerHTML = "";
-          }, 3000);
-        }
+      if(!response){
+        showMessage("danger","Something Went Wrong!");
+        return;
+      }
+      if(response.status && response.status == "success"){
+
+        showMessage("success",response.message);
+        loadBlogs();
+        
+      }else if(response.status && response.status == "error"){
+
+        showMessage("danger",response.message);
+        
+      }else{
+        
+        showMessage("danger","Something Went Wrong!");
       }
 
-      xhr.open("POST", "./handler.php", true);
-      xhr.send(formdata);
     }
 
     function next() {
-      if (!disable_next) {
+     
+      if((offset+limit)<total){
         offset += limit;
         loadBlogs();
+
       }
+
     }
 
     function previous() {

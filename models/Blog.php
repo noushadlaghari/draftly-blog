@@ -19,7 +19,7 @@ class Blog
         $this->conn = $db->get_connection();
     }
 
-    public function findAll($data)
+    public function findAll($offset = 0, $limit = 8)
     {
         $sql = "SELECT b.*, c.name as category, u.name as author 
                     FROM blogs b 
@@ -29,7 +29,7 @@ class Blog
                     LIMIT ?, ?";
 
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ii", $data["offset"], $data["limit"]);
+        $stmt->bind_param("ii", $offset, $limit);
 
         $stmt->execute();
         $result = $stmt->get_result();

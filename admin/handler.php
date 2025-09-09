@@ -25,11 +25,8 @@ if ($controller == "UserController") {
 
     switch ($action) {
         case "findAll":
-            $data = [
-                "offset" => $_POST["offset"] ?? 0,
-                "limit" => $_POST["limit"] ?? 6
-            ];
-            echo json_encode($controller->findAll($data));
+            $offset = $_POST["offset"]??0;
+            echo json_encode($controller->findAll($offset));
             break;
 
         case "count":
@@ -71,7 +68,6 @@ if ($controller == "BlogController") {
         case "findAll":
             $data = [
                 "offset" => $_POST["offset"] ?? 0,
-                "limit" => $_POST["limit"] ?? 6,
             ];
             echo json_encode($controller->findAll($data));
             break;

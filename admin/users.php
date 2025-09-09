@@ -7,6 +7,7 @@ $users = (new UserController())->findAll();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -146,19 +147,17 @@ $users = (new UserController())->findAll();
 </head>
 
 <body>
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <h4 class="text-center mb-4">Draftly Admin</h4>
-    <a href="index.php"><i class="fas fa-chart-bar me-2"></i> Dashboard</a>
-    <a href="users.php" class="active"><i class="fas fa-users me-2"></i> Manage Users</a>
-    <a href="blogs.php"><i class="fas fa-blog me-2"></i> Manage Blogs</a>
-    <a href="categories.php"><i class="fas fa-blog me-2"></i> Manage Categories</a>
-    <a href="comments.php"><i class="fas fa-comments me-2"></i> Comments</a>
-    <a href="contact.php"><i class="fas fa-envelope me-2"></i> Contact Messages</a>
-    <a href="profile.php"><i class="fas fa-cog me-2"></i> My Profile</a>
-  </div>
-
-
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h4 class="text-center mb-4">Draftly Admin</h4>
+        <a href="index.php"><i class="fas fa-chart-bar me-2"></i> Dashboard</a>
+        <a href="users.php" class="active"><i class="fas fa-users me-2"></i> Manage Users</a>
+        <a href="blogs.php"><i class="fas fa-blog me-2"></i> Manage Blogs</a>
+        <a href="categories.php"><i class="fas fa-blog me-2"></i> Manage Categories</a>
+        <a href="comments.php"><i class="fas fa-comments me-2"></i> Comments</a>
+        <a href="contact.php"><i class="fas fa-envelope me-2"></i> Contact Messages</a>
+        <a href="profile.php"><i class="fas fa-cog me-2"></i> My Profile</a>
+    </div>
     <!-- Content -->
     <div class="content">
         <!-- Navbar -->
@@ -187,42 +186,60 @@ $users = (new UserController())->findAll();
                     <tbody id="users_table">
                     </tbody>
                 </table>
-                <div class="d-flex justify-content-between mt-3">
-                    <button class="btn btn-primary" onclick="loadPrevious()" id="prevBtn">Previous</button>
-                    <button class="btn btn-primary" onclick="loadNext()" id="nextBtn">Next</button>
-                </div>
+                <nav aria-label="Categories pagination" class="d-flex justify-content-center">
+          <ul class="pagination">
+            <li class="page-item prev">
+              <button class="page-link" id="previous" onclick="previous()">
+                <i class="fas fa-chevron-left me-1"></i>Previous
+              </button>
+            </li>
+            <li class="page-item next">
+              <button class="page-link" id="next" onclick="next()">
+                Next<i class="fas fa-chevron-right ms-1"></i>
+              </button>
+            </li>
+          </ul>
+        </nav>
             </div>
         </div>
     </div>
 
+    <script src="./js/define.js"></script>
+
     <script>
-        let limit = 6;
+        let limit = 8;
         let offset = 0;
         let totalUsers = 0;
 
-        function loadUsers() {
+        async function loadUsers() {
             let users_table = document.getElementById("users_table");
             let formdata = new FormData();
             formdata.append("controller", "UserController");
             formdata.append("action", "findAll");
             formdata.append("offset", offset);
-            formdata.append("limit", limit);
 
-            let xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = () => {
-                if (xhr.status == 200 && xhr.readyState == 4) {
-                    let response = JSON.parse(xhr.responseText);
+            users_table.innerHTML = `<tr><td colspan="5" class="text-center">Loading...</td></tr>`;
 
-                    if (response && response.status == "success") {
-                        users_table.innerHTML = "";
-                        totalUsers = response.total;
-                        
-                        response.users.forEach(user => {
-                            users_table.innerHTML += `
+            let response = await request("./handler.php", formdata);
+
+            if (!response) {
+                showMessage("danger", "Something Went Wrong!");
+                return;
+            }
+
+            if (response.status && response.status == "success") {
+                users_table.innerHTML = "";
+                totalUsers = response.total;
+
+                if (response.users.length === 0) {
+                    users_table.innerHTML = `<tr><td colspan="5" class="text-center">No users found</td></tr>`;
+                }
+                response.users.forEach(user => {
+                    users_table.innerHTML += `
                                 <tr>
                                     <td>
-                                        ${user.profile_image !== "" ? 
-                                            `<img src="../public/${user.profile_image}" class="profile-picture">` : 
+                                        ${user.profile_image? 
+                                            `<img src="./../public/${user.profile_image}" class="profile-picture">` : 
                                             `<div class="profile-picture bg-light d-flex align-items-center justify-content-center">
                                                 <i class="fas fa-user text-secondary"></i>
                                             </div>`
@@ -237,76 +254,67 @@ $users = (new UserController())->findAll();
                                     </td>
                                 </tr>
                             `;
-                        });
+                });
 
-                        // Update button states
-                        document.getElementById('prevBtn').disabled = offset === 0;
-                        document.getElementById('nextBtn').disabled = (offset + limit) >= totalUsers;
-                    }
-                }
+
+                document.getElementById('previous').disabled = offset === 0;
+                document.getElementById('next').disabled = (offset + limit) >= totalUsers;
+
+            } else if (response.status && response.status == "error") {
+                showMessage("danger", response.message);
+            } else {
+                showMessage("danger", "Something Went Wrong!");
             }
 
-            xhr.open("POST", "./handler.php", true);
-            xhr.send(formdata);
         }
 
-        function loadNext() {
-            offset += limit;
-            loadUsers();
+        function next() {
+            if (offset + limit < totalUsers) {
+                offset += limit;
+                loadUsers();
+            }
         }
 
-        function loadPrevious() {
-            offset = Math.max(0, offset - limit);
-            loadUsers();
+        function previous() {
+            if (offset - limit >= 0) {
+                offset -= limit;
+                loadUsers();
+            }
         }
 
-        function deleteUser(user_id) {
+        async function deleteUser(user_id) {
+
             let approve = confirm("Do You want to Delete User?");
             if (!approve) {
                 return;
             }
-            
-            let message = document.getElementById("message");
+
             let formdata = new FormData();
             formdata.append("user_id", user_id);
             formdata.append("controller", "UserController");
             formdata.append("action", "delete");
 
-            let xhr = new XMLHttpRequest();
-
-            xhr.onreadystatechange = () => {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    let response = JSON.parse(xhr.responseText);
-                    if (response) {
-                        if (response.status == "success") {
-                            message.innerHTML = `
-                                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                    ${response.message}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            `;
-                            loadUsers();
-                        } else {
-                            message.innerHTML = `
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    ${response.message}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            `;
-                        }
-
-                        setTimeout(() => {
-                            message.innerHTML = "";
-                        }, 3000);
-                    }
-                }
+            let response = await request("./handler.php",formdata);
+            if(!response){
+                showMessage("danger","Something Went Wrong!");
+                return;
             }
+            
+            if(response.status && response.status == "success"){
 
-            xhr.open("POST", "./handler.php", true)
-            xhr.send(formdata);
+                showMessage("success",response.message);
+                loadUsers();
+                
+            }else if(response.status && response.status == "error"){
+                
+                showMessage("danger",response.message);
+            }else{
+                
+                showMessage("danger","Something Went Wrong!");
+            }
         }
 
-        // Initial load
+          // Initial load
         loadUsers();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

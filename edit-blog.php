@@ -4,7 +4,7 @@ require_once("./controllers/CategoriesController.php");
 require_once("./controllers/BlogController.php");
 
 $categogies_controller = new CategoriesController();
-$categories = $categogies_controller->getAll();
+$categories = $categogies_controller->findAll()["categories"];
 
 $id = $_GET["id"] ?? null;
 $blog = (new BlogController())->findById($id);

@@ -1,7 +1,7 @@
 <?php
 require_once("./controllers/CategoriesController.php");
 require_once("./middlewares/Auth.php");
-$categories = (new CategoriesController())->findAll();
+$categories = (new CategoriesController())->findAll()["categories"];
 ?>
 
 <!DOCTYPE html>
@@ -285,6 +285,7 @@ $categories = (new CategoriesController())->findAll();
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+
   <script>
     let limit = 3;
     let offset = 0;
@@ -332,6 +333,7 @@ $categories = (new CategoriesController())->findAll();
           loader.style.display = "none";
           let response = JSON.parse(xhr.responseText);
 
+       
           if (response.status == "success") {
             response.blogs.forEach(blog => {
               blogsContainer.innerHTML += `

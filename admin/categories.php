@@ -294,31 +294,9 @@ if (!checkAdmin()) {
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    async function request(url, data) {
-      try {
-        const response = await fetch(url, {
-          method: "POST",
-          body: data
-        });
+<script src="./js/define.js"></script>
+<script>
 
-        const raw = await response.text();
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-
-        try {
-          return JSON.parse(raw);
-        } catch {
-          return raw;
-        }
-
-      } catch (e) {
-        console.error("Request Error:", e.message);
-        return null;
-      }
-    }
 
     let offset = 0;
     let limit = 8;
@@ -558,18 +536,6 @@ if (!checkAdmin()) {
       document.querySelector(".pagination .next button").disabled = (offset + limit >= total);
     }
 
-    function showMessage(type, message) {
-      let message_container = document.getElementById("message");
-      message_container.innerHTML = `
-        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-          ${message}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      `;
-      setTimeout(() => {
-        message_container.innerHTML = "";
-      }, 2500);
-    }
   </script>
 </body>
 

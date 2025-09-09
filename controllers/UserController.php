@@ -127,13 +127,14 @@ class UserController
         return false;
     }
 
-    public function findAll($data = array())
+    public function findAll($offset=0,$limit=8)
     {
-        $Users = (new User())->findAll($data);
-        if ($Users) {
+        $users = (new User())->findAll($offset, $limit);
+        if (count($users["users"])>0) {
             return [
                 "status" => "success",
-                "users" => $Users
+                "users" => $users["users"],
+                "total"=> $users["total"]
             ];
         }
         return [

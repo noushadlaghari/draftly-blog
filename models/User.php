@@ -63,21 +63,26 @@ class User
     }
 
 
-    public function findAll($data)
+    public function findAll($offset=0, $limit=8)
     {
 
-        $sql = "SELECT * FROM users LIMIT ?, ?";
+        $sql = "SELECT * FROM users LIMIT ?,?";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ii", $data["offset"], $data["limit"]);
+        $stmt->bind_param("ii", $offset, $limit);
         $stmt->execute();
-
-        $result = $stmt->get_result();
-
-        $data = $result->fetch_all(MYSQLI_ASSOC)??[];
-
+        $result = $stmt->get_result();       
+        $users = $result->fetch_all(MYSQLI_ASSOC)??[];
         $stmt->close();
 
-        return $data;
+        $count_query = "SELECT COUNT(*) as total FROM users";
+        $result = $this->conn->query($count_query);
+        $total = $result->fetch_assoc()["total"]??0;
+
+
+        return [
+            "users"=> $users,
+            "total"=> $total
+        ];
     }
 
     public function count(){

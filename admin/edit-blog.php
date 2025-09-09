@@ -3,7 +3,7 @@ require_once(__DIR__ . "/../middlewares/Admin.php");
 require_once(__DIR__ . "/../controllers/BlogController.php");
 require_once(__DIR__ . "/../controllers/CategoriesController.php");
 
-if(!checkAdmin()){
+if (!checkAdmin()) {
     die("Unauthorized Access!");
 }
 
@@ -159,7 +159,7 @@ $categories = (new CategoriesController())->findAll()["categories"];
             border-radius: 10px;
             border: 1px solid #e2e8f0;
         }
-           
+
         .ql-editor {
             font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
             font-size: 16px;
@@ -179,7 +179,8 @@ $categories = (new CategoriesController())->findAll()["categories"];
             border: none;
         }
 
-        h2, h4 {
+        h2,
+        h4 {
             color: var(--text-primary);
             font-weight: 600;
         }
@@ -199,17 +200,17 @@ $categories = (new CategoriesController())->findAll()["categories"];
 </head>
 
 <body>
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <h4 class="text-center mb-4">Draftly Admin</h4>
-    <a href="index.php"><i class="fas fa-chart-bar me-2"></i> Dashboard</a>
-    <a href="users.php"><i class="fas fa-users me-2"></i> Manage Users</a>
-    <a href="blogs.php" class="active"><i class="fas fa-blog me-2"></i> Manage Blogs</a>
-    <a href="categories.php"><i class="fas fa-blog me-2"></i> Manage Categories</a>
-    <a href="comments.php"><i class="fas fa-comments me-2"></i> Comments</a>
-    <a href="contact.php"><i class="fas fa-envelope me-2"></i> Contact Messages</a>
-    <a href="profile.php"><i class="fas fa-cog me-2"></i> My Profile</a>
-  </div>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h4 class="text-center mb-4">Draftly Admin</h4>
+        <a href="index.php"><i class="fas fa-chart-bar me-2"></i> Dashboard</a>
+        <a href="users.php"><i class="fas fa-users me-2"></i> Manage Users</a>
+        <a href="blogs.php" class="active"><i class="fas fa-blog me-2"></i> Manage Blogs</a>
+        <a href="categories.php"><i class="fas fa-blog me-2"></i> Manage Categories</a>
+        <a href="comments.php"><i class="fas fa-comments me-2"></i> Comments</a>
+        <a href="contact.php"><i class="fas fa-envelope me-2"></i> Contact Messages</a>
+        <a href="profile.php"><i class="fas fa-cog me-2"></i> My Profile</a>
+    </div>
 
 
     <!-- Content -->
@@ -261,7 +262,7 @@ $categories = (new CategoriesController())->findAll()["categories"];
                             <div id="content_error" class="error"></div>
                         </div>
 
-                         <div class="mb-3">
+                        <div class="mb-3">
                             <label for="title" class="form-label">Excerpt (80-200 Characters)</label>
                             <input type="text" class="form-control" id="excerpt" name="excerpt" value="<?= htmlspecialchars($blog['excerpt']) ?>" placeholder="Excerpt (80-200 Characters)">
                             <div id="excerpt_error" class="error"></div>
@@ -333,25 +334,42 @@ $categories = (new CategoriesController())->findAll()["categories"];
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+    <script src="./js/define.js"></script>
     <script>
         // Initialize Quill editor
         const quill = new Quill('#content', {
             theme: 'snow',
             modules: {
                 toolbar: [
-                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                    [{
+                        'header': [1, 2, 3, 4, 5, 6, false]
+                    }],
                     ['bold', 'italic', 'underline', 'strike'],
-                    [{ 'color': [] }, { 'background': [] }],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    [{ 'indent': '-1'}, { 'indent': '+1' }],
-                    [{ 'align': [] }],
+                    [{
+                        'color': []
+                    }, {
+                        'background': []
+                    }],
+                    [{
+                        'list': 'ordered'
+                    }, {
+                        'list': 'bullet'
+                    }],
+                    [{
+                        'indent': '-1'
+                    }, {
+                        'indent': '+1'
+                    }],
+                    [{
+                        'align': []
+                    }],
                     ['link'],
                     ['clean']
                 ]
             },
             placeholder: 'Write your amazing blog content here...'
         });
-    
+
         // Image preview functionality
         document.getElementById('featured_image').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -381,62 +399,48 @@ $categories = (new CategoriesController())->findAll()["categories"];
         let featured_img_error = document.getElementById("featured_img_error");
         let category_error = document.getElementById("category_error");
 
-        form.addEventListener("submit", (e) => {
-            e.preventDefault();
+            async function updateBlog(){
 
             let formdata = new FormData(form);
             formdata.append("content", quill.root.innerHTML);
             formdata.append("controller", "BlogController");
             formdata.append("action", "update");
 
-            let xhr = new XMLHttpRequest();
+            let response = await request("./handler.php", formdata);
 
-            xhr.onreadystatechange = () => {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-
-                    let response = JSON.parse(xhr.responseText);
-
-                    if (response && response.status) {
-                        if (response.status == "success") {
-                            message.innerHTML = `
-                                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                    ${response.message}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            `;
-                        } else if (response.status == "error" && response.errors) {
-                            let errors = response.errors;
-                            title_error.innerText = errors.title || "";
-                            content_error.innerText = errors.content || "";
-                            excerpt_error.innerText = errors.excerpt || "";
-                            category_error.innerText = errors.category || "";
-                            featured_img_error.innerText = errors.featured_image || "";
-                        } else if (response.status == "error" && response.message) {
-                            message.innerHTML = `
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    ${response.message}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            `;
-                        }
-                    } else {
-                        message.innerHTML = `
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                Unknown Error!
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        `;
-                    }
-
-                    setTimeout(() => {
-                        message.innerHTML = "";
-                    }, 3000);
-                }
+            if (!response) {
+                showMessage("danger", "Something Went Wrong!");
+                return;
             }
 
-            xhr.open("POST", "./handler.php", true);
-            xhr.send(formdata);
-        });
+            if (response.status && response.status == "success") {
+                showMessage("success", response.message);
+
+            } else if (response.status && response.errors) {
+
+                let errors = response.errors;
+
+                title_error.innerText = errors.title ?? "";
+                content_error.innerText = errors.content ?? "";
+                excerpt_error.innerText = errors.excerpt ?? "";
+                category_error.innerText = errors.category ?? "";
+                featured_img_error.innerText = errors.featured_image ?? "";
+
+
+            } else if (response.status && response.status == "error" && response.message) {
+                showMessage("danger", response.message)
+            } else {
+
+                showMessage("danger", "Something Went Wrong!");
+
+            }
+        }
+
+        form.addEventListener("submit",(e)=>{
+            e.preventDefault();
+            updateBlog();
+
+        })
     </script>
 </body>
 

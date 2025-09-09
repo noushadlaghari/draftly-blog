@@ -305,104 +305,68 @@ if (isset($_GET["user_id"])) {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        let message = document.getElementById("message");
+    <script src="./js/define.js"></script>
 
-        function deleteProfileImage(id) {
+    <script>
+
+
+        async function deleteProfileImage(id){
             let formdata = new FormData();
             formdata.append("controller", "UserController");
             formdata.append("action", "deleteProfileImage");
             formdata.append("user_id", id);
-            
-            let xhr = new XMLHttpRequest();
 
-            xhr.onreadystatechange = () => {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    let response = JSON.parse(xhr.responseText);
+            let response = await request("./handler.php",formdata);
 
-                    if (response && response.status == "success") {
-                        message.innerHTML = `
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                ${response.message}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>  
-                        `;
-
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 3000);
-                    } else if (response && response.status == "error") {
-                        message.innerHTML = `
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                ${response.message}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        `;
-                    } else {
-                        message.innerHTML = `
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                Unknown Error!
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        `;
-                    }
-                }
+            if(!response){
+                showMessage("danger","Something Went Wrong!");
+                return;
             }
-            
-            xhr.open("POST", "./handler.php", true);
-            xhr.send(formdata);
+
+            if(response.status && response.status == "success"){
+
+                showMessage("success",response.message)
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2500);
+                
+                
+            }else if(response.status && response.status == "error"){
+                
+                showMessage("danger",response.message)
+            }else{
+                
+                showMessage("danger","Something Went Wrong!");
+            }
         }
+
 
         let userForm = document.getElementById("userForm");
 
-        function updateDetails() {
+        async function updateDetails(){
             let formdata = new FormData(userForm);
             formdata.append("controller", "UserController");
             formdata.append("action", "update");
 
-            let xhr = new XMLHttpRequest();
-
-            xhr.onreadystatechange = () => {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    let response = JSON.parse(xhr.responseText);
-
-                    if (response && response.status == "success") {
-                        message.innerHTML = `
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                ${response.message}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        `;
-
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 2500);
-                    } else if (response && response.status == "error") {
-                        message.innerHTML = `
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                ${response.message}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        `;
-                    } else {
-                        message.innerHTML = `
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                Unknown Error During Update!
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        `;
-                    }
+            let response = await request("./handler.php",formdata);
+            if(!response){
+                showMessage("danger","Something Went Wrong!");
+                return;
+            }
+            if(response.status&& response.status=="success"){
                 
+                showMessage("success",response.message);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2500);
                 
-                    setTimeout(()=>{
-                        message.innerHTML="";
-                    },2000)
+            }else if(response.status && response.status =="error"){
+                showMessage("danger",response.message);
+            }else{
                 
-                }
+                showMessage("danger","Something Went Wrong!");
             }
 
-            xhr.open("POST", "./handler.php", true);
-            xhr.send(formdata);
         }
 
         userForm.addEventListener("submit", (e) => {

@@ -3,7 +3,7 @@ require_once(__DIR__ ."/middlewares/Auth.php");
 require_once(__DIR__ ."/controllers/BlogController.php");
 require_once(__DIR__ ."/controllers/CategoriesController.php");
 
-$categories = (new CategoriesController())->findAll();
+$categories = (new CategoriesController())->findAll()["categories"];
 $blogs_by_category = [];
 
 // Get 3 blogs for each category

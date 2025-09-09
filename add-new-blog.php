@@ -3,7 +3,7 @@ require_once("./middlewares/auth.php");
 require_once("./controllers/CategoriesController.php");
 
 $categogies_controller = new CategoriesController();
-$categories = $categogies_controller->findAll();
+$categories = $categogies_controller->findAll(0,30)["categories"];
 ?>
 
 <!DOCTYPE html>

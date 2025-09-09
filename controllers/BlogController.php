@@ -4,6 +4,7 @@ require_once(__DIR__ . "/../models/Blog.php");
 require_once(__DIR__ . "/../middlewares/Auth.php");
 require_once(__DIR__ . "/../middlewares/Admin.php");
 
+
 class BlogController
 {
     public function create($data)
@@ -107,7 +108,7 @@ class BlogController
         }
     }
 
-    public function findAll($data)
+    public function findAll($data= array())
     {
         $blogModel = new Blog();
 
@@ -131,7 +132,7 @@ class BlogController
             }
         }
 
-        $blogs = $blogModel->findAll($data);
+        $blogs = $blogModel->findAll($data["offset"]);
 
         if ($blogs && count($blogs["blogs"]) > 0) {
             return [
@@ -385,7 +386,7 @@ class BlogController
         } else {
             return [
                 "status" => "error",
-                "message" => "Unknown Error During Update!"
+                "message" => "No changes were made!"
             ];
         }
     }
