@@ -1,109 +1,127 @@
     <?php
-  require_once(__DIR__ ."/../middlewares/Admin.php");
+    require_once(__DIR__ . "/../middlewares/Admin.php");
 
-  ?>
-  <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Draftly Admin Panel</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      background-color: #f8f9fa;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    if (!checkAdmin()) {
+
+      die("Unauthorized Access!");
     }
-    .sidebar {
-      height: 100vh;
-      background: #343a40;
-      color: #fff;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 230px;
-      padding-top: 20px;
-    }
-    .sidebar a {
-      color: #adb5bd;
-      display: block;
-      padding: 12px 20px;
-      text-decoration: none;
-      transition: 0.3s;
-    }
-    .sidebar a:hover,
-    .sidebar a.active {
-      background: #495057;
-      color: #fff;
-      border-radius: 5px;
-    }
-    .content {
-      margin-left: 240px;
-      padding: 20px;
-    }
-    .card {
-      border: none;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.08);
-      border-radius: 12px;
-    }
-    .table th {
-      background: #f1f3f5;
-    }
-    .btn-sm {
-      border-radius: 20px;
-      padding: 3px 12px;
-    }
-    .navbar {
-      margin-left: 240px;
-    }
-  </style>
-</head>
-<body>
+
+    ?>
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+      <title>Draftly Admin Panel</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+      <style>
+        body {
+          background-color: #f8f9fa;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .sidebar {
+          height: 100vh;
+          background: #343a40;
+          color: #fff;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 230px;
+          padding-top: 20px;
+        }
+
+        .sidebar a {
+          color: #adb5bd;
+          display: block;
+          padding: 12px 20px;
+          text-decoration: none;
+          transition: 0.3s;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+          background: #495057;
+          color: #fff;
+          border-radius: 5px;
+        }
+
+        .content {
+          margin-left: 240px;
+          padding: 20px;
+        }
+
+        .card {
+          border: none;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+          border-radius: 12px;
+        }
+
+        .table th {
+          background: #f1f3f5;
+        }
+
+        .btn-sm {
+          border-radius: 20px;
+          padding: 3px 12px;
+        }
+
+        .navbar {
+          margin-left: 240px;
+        }
+      </style>
+    </head>
+
+    <body>
 
 
-  <!-- Sidebar -->
+   <!-- Sidebar -->
   <div class="sidebar">
     <h4 class="text-center mb-4">Draftly Admin</h4>
-    <a href="index.php">📊 Dashboard</a>
-    <a href="users.php" >👥 Manage Users</a>
-    <a href="blogs.php">📝 Manage Blogs</a>
-    <a href="comments.php">💬 Comments</a>
-    <a href="contact.php">📨 Contact Messages</a>
-    <a href="profile.php" class="active">⚙️ My Profile</a>
+    <a href="index.php"><i class="fas fa-chart-bar me-2"></i> Dashboard</a>
+    <a href="users.php"><i class="fas fa-users me-2"></i> Manage Users</a>
+    <a href="blogs.php"><i class="fas fa-blog me-2"></i> Manage Blogs</a>
+    <a href="categories.php"><i class="fas fa-blog me-2"></i> Manage Categories</a>
+    <a href="comments.php" class="active"><i class="fas fa-comments me-2"></i> Comments</a>
+    <a href="contact.php"><i class="fas fa-envelope me-2"></i> Contact Messages</a>
+    <a href="profile.php"><i class="fas fa-cog me-2"></i> My Profile</a>
   </div>
 
 
-  <!-- Content -->
-  <div class="content">
-    <!-- Navbar -->
-    <nav class="navbar navbar-light bg-white shadow-sm mb-4 rounded">
-      <div class="container-fluid">
-        <span class="navbar-brand mb-0 h5">Welcome, Admin</span>
-        <button class="btn btn-outline-danger btn-sm">Logout</button>
-      </div>
-    </nav>   
-   
-    <!-- Profile -->
-    <div id="profile" class="section">
-      <div class="card p-4">
-        <h4 class="mb-3">My Profile</h4>
-        <form>
-          <div class="mb-3">
-            <label>Name</label>
-            <input type="text" class="form-control" value="Admin User">
-          </div>
-          <div class="mb-3">
-            <label>Email</label>
-            <input type="email" class="form-control" value="admin@draftly.com">
-          </div>
-          <button class="btn btn-primary">Update Profile</button>
-        </form>
-      </div>
-    </div>
 
-    
+      <!-- Content -->
+      <div class="content">
+        <!-- Navbar -->
+        <nav class="navbar navbar-light bg-white shadow-sm mb-4 rounded">
+          <div class="container-fluid">
+            <span class="navbar-brand mb-0 h5">Welcome, Admin</span>
+            <button class="btn btn-outline-danger btn-sm">Logout</button>
+          </div>
+        </nav>
+
+        <!-- Profile -->
+        <div id="profile" class="section">
+          <div class="card p-4">
+            <h4 class="mb-3">My Profile</h4>
+            <form>
+              <div class="mb-3">
+                <label>Name</label>
+                <input type="text" class="form-control" value="Admin User">
+              </div>
+              <div class="mb-3">
+                <label>Email</label>
+                <input type="email" class="form-control" value="admin@draftly.com">
+              </div>
+              <button class="btn btn-primary">Update Profile</button>
+            </form>
+          </div>
         </div>
-    
-</body>
-</html>
+
+
+      </div>
+
+    </body>
+
+    </html>

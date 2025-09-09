@@ -6,7 +6,7 @@ if(isset($_GET["category_id"])){
     
     require_once("./controllers/CategoriesController.php");
     
-    $category = (new CategoriesController())->findById($category_id);
+    $category = (new CategoriesController())->findById($category_id)["category"];
 
 }
 

@@ -129,6 +129,47 @@ if ($controller == "CommentsController") {
     }
 }
 
+if($controller == "CategoriesController"){
+    require_once(__DIR__ . "/../controllers/CategoriesController.php");
+
+    $categories_controller = new CategoriesController();
+
+    switch ($action) {
+
+        case "findAll":
+            $offset = $_POST["offset"] ?? null;
+            echo json_encode($categories_controller->findAll($offset));
+            break;
+
+        case "findById":
+            $category_id = $_POST["category_id"] ?? null;
+            echo json_encode($categories_controller->findById($category_id));
+            break;
+            
+        case "create":
+            $data = [
+                "category_name"=> $_POST["category_name"] ?? "",
+                "category_slug"=> $_POST["category_slug"] ??"",
+            ];
+            echo json_encode($categories_controller->create($data));
+            break;
+
+        case "update":
+            $data = [
+                "category_id"=> $_POST["category_id"] ?? null,
+                "category_name"=> $_POST["category_name"] ?? null,
+                "category_slug"=> $_POST["category_slug"] ?? null
+            ];
+            echo json_encode($categories_controller->update($data));
+            break;
+        case "delete":
+            $id = $_POST["category_id"] ?? null;
+            echo json_encode($categories_controller->delete($id));
+            break;
+
+    }
+}
+
 
 if ($controller == "ContactsController") {
 

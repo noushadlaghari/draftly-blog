@@ -231,7 +231,7 @@ class Blog
 
     public function create()
     {
-        $sql = "INSERT INTO blogs (title, content,excerpt featured_image, category_id, user_id) 
+        $sql = "INSERT INTO blogs (title, content,excerpt, featured_image, category_id, user_id) 
             VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("ssssii", $this->title, $this->content, $this->excerpt, $this->featured_image, $this->category, $this->user_id);

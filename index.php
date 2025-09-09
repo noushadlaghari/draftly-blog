@@ -3,7 +3,7 @@ require_once(__DIR__ ."/middlewares/Auth.php");
 require_once(__DIR__ ."/controllers/BlogController.php");
 require_once(__DIR__ ."/controllers/CategoriesController.php");
 
-$categories = (new CategoriesController())->findAll();
+$categories = (new CategoriesController())->findAll()["categories"];
 
 
 $blogs = (new BlogController())->findAll(["limit"=>3,"offset",0])["blogs"];

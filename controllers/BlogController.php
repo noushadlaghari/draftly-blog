@@ -90,6 +90,7 @@ class BlogController
         $blog->user_id = $user_id;
         $blog->title = $data["title"];
         $blog->content = $data["content"];
+        $blog->excerpt = $data["excerpt"];
         $blog->category = $data["category"];
         $blog->featured_image = $featured_image;
 

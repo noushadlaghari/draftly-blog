@@ -1,43 +1,135 @@
 <?php
 
-require_once(__DIR__ ."/../database/database.php");
-require_once(__DIR__ ."/../models/Category.php");
+require_once(__DIR__ . "/../models/Category.php");
 
-class CategoriesController{
+class CategoriesController
+{
 
-    private $conn;
-    public function __construct(){
 
-        $db = new Database();
-        $this->conn = $db->get_connection();
-    }
-    public function getAll(){
-        $sql = "SELECT * FROM categories";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
-    }
-    public function findAll(){
-        $categories = (new Category())->findAll();
-        if($categories){
-            return $categories;
+    public function findAll($offset = 0, $limit = 8)
+    {
+        $categories = (new Category())->findAll($offset, $limit);
+        if ($categories) {
+            return [
+                "status"=>"success",
+                "categories"=> $categories["categories"],
+                "total"=> $categories["total"]
+            ];
         }
-        return false;
+        else{
+            return [
+                "status"=> "error",
+                "message"=>"Categories Not Found!"
+                ];
+        }
     }
 
-    public function findById($id){
+    public function findById($id)
+    {
 
         $category = (new Category())->findById($id);
 
-        if($category){
-            return $category;
+        if (count($category)>0) {
+            return [
+                "status"=> "success",
+                "category"=> $category
+
+            ];
         }
-        return false;
-
-
+        else{
+            return [
+                "status"=> "error",
+                "message"=> "Category not found!"
+                ];
+        }
     }
-    
-}
 
-?>
+    public function create($data)
+    {
+
+
+        $errors = array();
+
+        if (empty($data["category_name"])) {
+            $errors["category_name"] = "Category Name is required!";
+        }
+        if (empty($data["category_slug"])) {
+            $errors["category_slug"] = "Category Slug is required!";
+        }
+        if (!empty($errors)) {
+            return [
+                "statuts" => "errors",
+                "errors" => $errors,
+            ];
+        }
+
+        $categoryModel = new Category();
+
+        if ($categoryModel->create($data)) {
+            return [
+                "status" => "success",
+                "message" => "Category Created Successfully!",
+
+            ];
+        } else {
+            return [
+                "status" => "error",
+                "message" => "Unable to Create Category!",
+            ];
+        }
+    }
+
+    public function update($data)
+    {
+        $errors = array();
+        if (empty($data["category_name"])) {
+            $errors["category_name"] = "Category Name is required!";
+        }
+        if (empty($data["category_slug"])) {
+            $errors["category_slug"] = "Category Slug is required!";
+        }
+        if (!empty($errors)) {
+            return [
+                "status" => "errors",
+                "errors" => $errors
+            ];
+        }
+
+        $categoryModel = new Category();
+        if ($categoryModel->update($data)) {
+            return [
+                "status" => "success",
+                "message" => "Category Updated Successfully!"
+            ];
+        } else {
+            return [
+                "status" => "error",
+                "message" => "No Changes were made!"
+            ];
+        }
+    }
+
+    public function delete($id)
+    {
+        $categoryModel = new Category();
+        if(!count($categoryModel->findById($id))>0){
+            return [
+                "status"=> "error",
+                "message"=> "Category Not Found!",
+                "code"=>404
+            ];
+        }
+        
+        if($categoryModel->delete($id)){
+            return [
+                "status"=> "success",
+                "message"=> "Category Deleted Successfully!"
+                ];
+            }else{
+                return [
+                    "status"=> "error",
+                    "message"=> "Unable to Delete Category!"
+                    ];
+            }
+    }
+}

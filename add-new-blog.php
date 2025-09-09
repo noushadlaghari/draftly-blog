@@ -3,7 +3,7 @@ require_once("./middlewares/auth.php");
 require_once("./controllers/CategoriesController.php");
 
 $categogies_controller = new CategoriesController();
-$categories = $categogies_controller->getAll();
+$categories = $categogies_controller->findAll();
 ?>
 
 <!DOCTYPE html>
@@ -13,7 +13,7 @@ $categories = $categogies_controller->getAll();
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create New Blog - Draftly</title>
-    <link rel="icon" type="image/png" href="./assets/images/favicon.png">
+  <link rel="icon" type="image/png" href="./assets/images/favicon.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
@@ -27,13 +27,13 @@ $categories = $categogies_controller->getAll();
       --light: #f8f9fc;
       --light-bg: #f8f9fa;
     }
-    
+
     body {
       background-color: var(--light-bg);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       color: var(--dark);
     }
-    
+
     .create-blog-card {
       border: none;
       border-radius: 15px;
@@ -41,7 +41,7 @@ $categories = $categogies_controller->getAll();
       overflow: hidden;
       margin: 2rem 0;
     }
-    
+
     .card-header {
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
       color: white;
@@ -49,33 +49,35 @@ $categories = $categogies_controller->getAll();
       padding: 2rem;
       text-align: center;
     }
-    
+
     .card-header h2 {
       font-weight: 800;
       margin: 0;
     }
-    
+
     .card-body {
       padding: 2.5rem;
     }
-    
-    .form-control, .form-select {
+
+    .form-control,
+    .form-select {
       border-radius: 10px;
       padding: 12px 15px;
       border: 1px solid #e2e8f0;
       transition: all 0.3s;
     }
-    
-    .form-control:focus, .form-select:focus {
+
+    .form-control:focus,
+    .form-select:focus {
       border-color: var(--primary);
       box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.15);
     }
-    
+
     .form-control-lg {
       padding: 1rem 1.2rem;
       font-size: 1.05rem;
     }
-    
+
     .btn-primary {
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
       border: none;
@@ -85,19 +87,19 @@ $categories = $categogies_controller->getAll();
       font-size: 1.1rem;
       transition: all 0.3s;
     }
-    
+
     .btn-primary:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 20px rgba(111, 66, 193, 0.35);
     }
-    
+
     .error {
       color: #e74c3c;
       font-size: 0.9rem;
       margin-top: 0.5rem;
       display: block;
     }
-    
+
     .img-preview-container {
       border: 2px dashed #dee2e6;
       border-radius: 12px;
@@ -107,11 +109,11 @@ $categories = $categogies_controller->getAll();
       transition: all 0.3s;
       background: var(--light);
     }
-    
+
     .img-preview-container:hover {
       border-color: var(--primary);
     }
-    
+
     .section-title {
       position: relative;
       padding-left: 2.5rem;
@@ -119,7 +121,7 @@ $categories = $categogies_controller->getAll();
       color: var(--dark);
       font-weight: 600;
     }
-    
+
     .section-title i {
       position: absolute;
       left: 0;
@@ -133,64 +135,65 @@ $categories = $categogies_controller->getAll();
       justify-content: center;
       color: white;
     }
-    
+
     #content {
       height: 70vh;
       margin-bottom: 1.5rem;
       border-radius: 10px;
       border: 1px solid #e2e8f0;
     }
-    
+
     .ql-toolbar {
       border-radius: 10px 10px 0 0;
       border-color: #e2e8f0 !important;
     }
-    
+
     .ql-container {
       border-radius: 0 0 10px 10px;
       border-color: #e2e8f0 !important;
       font-family: inherit;
     }
-    
+
     .alert {
       border-radius: 10px;
       border: none;
       padding: 1rem 1.5rem;
     }
-    
+
     .alert-success {
       background: rgba(28, 200, 138, 0.15);
       color: var(--dark);
       border-left: 4px solid var(--success);
     }
-    
+
     .alert-danger {
       background: rgba(231, 76, 60, 0.15);
       color: var(--dark);
       border-left: 4px solid #e74c3c;
     }
-    
+
     @media (max-width: 768px) {
       .container {
         width: 95% !important;
         padding: 0 1rem;
       }
-      
+
       .card-body {
         padding: 1.5rem;
       }
-      
+
       .card-header {
         padding: 1.5rem;
       }
-      
+
       .section-title {
         padding-left: 2rem;
       }
-    
-    
+
+
     }
-        .ql-editor {
+
+    .ql-editor {
       font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
       font-size: 16px;
       line-height: 1.6;
@@ -292,7 +295,7 @@ $categories = $categogies_controller->getAll();
   <footer>
     <?php require_once('./partials/footer.php'); ?>
   </footer>
-  
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 
@@ -302,12 +305,28 @@ $categories = $categogies_controller->getAll();
       theme: 'snow',
       modules: {
         toolbar: [
-          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+          [{
+            'header': [1, 2, 3, 4, 5, 6, false]
+          }],
           ['bold', 'italic', 'underline', 'strike'],
-          [{ 'color': [] }, { 'background': [] }],
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-          [{ 'indent': '-1'}, { 'indent': '+1' }],
-          [{ 'align': [] }],
+          [{
+            'color': []
+          }, {
+            'background': []
+          }],
+          [{
+            'list': 'ordered'
+          }, {
+            'list': 'bullet'
+          }],
+          [{
+            'indent': '-1'
+          }, {
+            'indent': '+1'
+          }],
+          [{
+            'align': []
+          }],
           ['link'],
           ['clean']
         ]
@@ -318,12 +337,12 @@ $categories = $categogies_controller->getAll();
     // Image preview functionality
     let img = document.getElementById("image");
     let img_preview = document.getElementById("img_preview");
-    
+
     img.addEventListener("change", (e) => {
       if (e.target.files && e.target.files[0]) {
         let reader = new FileReader();
         let src = URL.createObjectURL(e.target.files[0]);
-        
+
         reader.onload = function(event) {
           img_preview.innerHTML = `
             <img src="${event.target.result}" class="img-fluid rounded" style="max-height: 200px;">
@@ -336,13 +355,13 @@ $categories = $categogies_controller->getAll();
 
     // Form submission handling
     let form = document.getElementById("form");
-    
+
     form.addEventListener("submit", (e) => {
       e.preventDefault();
 
       // Reset error messages
       document.querySelectorAll('.error').forEach(el => el.innerHTML = '');
-      
+
       let formdata = new FormData(form);
       formdata.append("controller", "BlogController");
       formdata.append("action", "create");
@@ -373,7 +392,7 @@ $categories = $categogies_controller->getAll();
             if (errors.featured_image) {
               document.getElementById('image_error').innerHTML = `<i class="fas fa-exclamation-circle me-1"></i> ${errors.featured_image}`;
             }
-            
+
             // Display general error message
             if (errors.db) {
               message.innerHTML = `
@@ -383,8 +402,11 @@ $categories = $categogies_controller->getAll();
                 </div>
               `;
             }
-             window.scrollTo({ top: 0, behavior: 'smooth' });
-             
+            window.scrollTo({
+              top: 0,
+              behavior: 'smooth'
+            });
+
           } else if (response.status == "success") {
             // Reset form on success
             form.reset();
@@ -401,9 +423,12 @@ $categories = $categogies_controller->getAll();
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
             `;
-            
+
             // Scroll to top to show message
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({
+              top: 0,
+              behavior: 'smooth'
+            });
           } else {
             // Show unknown error message
             message.innerHTML = `
