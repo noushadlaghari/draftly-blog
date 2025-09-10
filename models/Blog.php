@@ -38,7 +38,7 @@ class Blog
 
         $count_query = "SELECT COUNT(*) as total FROM blogs";
         $count_result = $this->conn->query($count_query);
-        $total = $count_result->fetch_assoc()["total"]??0;
+        $total = $count_result->fetch_assoc()["total"] ?? 0;
 
         return [
             "blogs" => $blogs,
@@ -50,8 +50,8 @@ class Blog
     {
         $query = "%" . $data["query"] . "%";
         $category_id = $data["category_id"];
-        $offset = $data["offset"]??0;
-        $limit = $data["limit"]??8;
+        $offset = $data["offset"] ?? 0;
+        $limit = $data["limit"] ?? 8;
 
         // Base SQL for rows
         if ($category_id == 0) {
@@ -97,12 +97,12 @@ class Blog
         // Execute main query
         $stmt->execute();
         $result = $stmt->get_result();
-        $blogs = $result->fetch_all(MYSQLI_ASSOC)??[];
+        $blogs = $result->fetch_all(MYSQLI_ASSOC) ?? [];
 
         // Execute count query
         $countStmt->execute();
         $countResult = $countStmt->get_result();
-        $total = $countResult->fetch_assoc()["total"]??0;
+        $total = $countResult->fetch_assoc()["total"] ?? 0;
 
         return [
             "blogs" => $blogs,
@@ -112,35 +112,37 @@ class Blog
 
 
 
-    public function count(){
+    public function count()
+    {
         $sql = "SELECT COUNT(*) as total FROM users";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
         $result = $stmt->get_result();
-        $total = $result->fetch_assoc()["total"]??0;
+        $total = $result->fetch_assoc()["total"] ?? 0;
 
         return $total;
-
     }
 
-    public function addView($id){
+    public function addView($id)
+    {
         $sql = "UPDATE blogs SET views_count=views_count+1 WHERE id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
-      
-        if($stmt->affected_rows>0){
+
+        if ($stmt->affected_rows > 0) {
             return true;
         }
         return false;
-
     }
-    public function topBlogs(){
-        $sql = "SELECT b.*, u.name as author FROM blogs b JOIN users u ON b.user_id = u.id ORDER BY views_count DESC LIMIT 0,3";
+    public function topBlogs($offset = 0, $limit = 3)
+    {
+        $sql = "SELECT b.*, u.name as author FROM blogs b JOIN users u ON b.user_id = u.id ORDER BY views_count DESC LIMIT ?,?";
         $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ii", $offset, $limit);
         $stmt->execute();
         $result = $stmt->get_result();
-        $blogs = $result->fetch_all(MYSQLI_ASSOC)??[];  
+        $blogs = $result->fetch_all(MYSQLI_ASSOC) ?? [];
         return $blogs;
     }
 
@@ -167,7 +169,7 @@ class Blog
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result();
-        $blogs =  $result->fetch_all(MYSQLI_ASSOC)??[];
+        $blogs =  $result->fetch_all(MYSQLI_ASSOC) ?? [];
 
 
         $count_query = "SELECT COUNT(*) as total FROM blogs WHERE user_id = ?";
@@ -175,14 +177,12 @@ class Blog
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result();
-        $total = $result ->fetch_assoc()["total"]??0;
-        
+        $total = $result->fetch_assoc()["total"] ?? 0;
+
         return [
-            "total"=> $total,
-            "blogs"=> $blogs
+            "total" => $total,
+            "blogs" => $blogs
         ];
-        
-       
     }
 
     public function findByTitle($title)
@@ -205,7 +205,15 @@ class Blog
     {
 
 
-        $sql = "SELECT b.*, c.name as category, u.name as author, u.profile_image as author_image FROM blogs b JOIN categories c ON b.category_id = c.id JOIN users u ON b.user_id = u.id WHERE category_id = ? LIMIT ?,?";
+        $sql = "SELECT b.*, c.name as category, 
+                   u.name as author, u.profile_image as author_image 
+            FROM blogs b 
+            JOIN categories c ON b.category_id = c.id 
+            JOIN users u ON b.user_id = u.id 
+            WHERE b.category_id = ? 
+            ORDER BY b.created_at DESC 
+            LIMIT ?, ?";
+
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("iii", $data["category_id"], $data["offset"], $data["limit"]);
         $stmt->execute();
@@ -214,6 +222,7 @@ class Blog
             return $result->fetch_all(MYSQLI_ASSOC);
         }
         return false;
+        
     }
 
     public function findFeatured()
@@ -224,9 +233,8 @@ class Blog
         $stmt->bind_param("s", $featured);
         $stmt->execute();
         $result = $stmt->get_result();
- 
-        return $result->fetch_all(MYSQLI_ASSOC)??[];
-     
+
+        return $result->fetch_all(MYSQLI_ASSOC) ?? [];
     }
 
     public function create()
@@ -237,7 +245,7 @@ class Blog
         $stmt->bind_param("ssssii", $this->title, $this->content, $this->excerpt, $this->featured_image, $this->category, $this->user_id);
 
         if ($stmt->execute() && $stmt->affected_rows > 0) {
-            return $this;
+            return true;
         } else {
             return false;
         }

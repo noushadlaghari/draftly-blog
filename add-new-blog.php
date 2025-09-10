@@ -3,7 +3,7 @@ require_once("./middlewares/auth.php");
 require_once("./controllers/CategoriesController.php");
 
 $categogies_controller = new CategoriesController();
-$categories = $categogies_controller->findAll(0,30)["categories"];
+$categories = $categogies_controller->findAll(0, 30)["categories"];
 ?>
 
 <!DOCTYPE html>
@@ -298,6 +298,7 @@ $categories = $categogies_controller->findAll(0,30)["categories"];
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+  <script src="./js/define.js"></script>
 
   <script>
     // Initialize Quill editor
@@ -356,94 +357,61 @@ $categories = $categogies_controller->findAll(0,30)["categories"];
     // Form submission handling
     let form = document.getElementById("form");
 
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
+    async function submit_blog() {
 
-      // Reset error messages
       document.querySelectorAll('.error').forEach(el => el.innerHTML = '');
-
       let formdata = new FormData(form);
       formdata.append("controller", "BlogController");
       formdata.append("action", "create");
       formdata.append("content", quill.root.innerHTML);
 
-      let xhr = new XMLHttpRequest();
+      let response = await request("./handler/handler.php", formdata);
+      if (!response) {
+        showMessage("danger", "Something Went Wrong!");
+        return;
+      }
 
-      xhr.onreadystatechange = () => {
-        if (xhr.status == 200 && xhr.readyState == 4) {
-          let response = JSON.parse(xhr.responseText);
+      if (response.status && response.status == "success") {
+        showMessage("success", response.message);
+        quill.setContents([]);
+        form.reset();
 
-          if (response.status == "error") {
-            let errors = response.errors;
 
-            // Display field-specific errors
-            if (errors.title) {
-              document.getElementById('title_error').innerHTML = `<i class="fas fa-exclamation-circle me-1"></i> ${errors.title}`;
-            }
-            if (errors.category) {
-              document.getElementById('category_error').innerHTML = `<i class="fas fa-exclamation-circle me-1"></i> ${errors.category}`;
-            }
-            if (errors.content) {
-              document.getElementById('content_error').innerHTML = `<i class="fas fa-exclamation-circle me-1"></i> ${errors.content}`;
-            }
-            if (errors.excerpt) {
-              document.getElementById('excerpt_error').innerHTML = `<i class="fas fa-exclamation-circle me-1"></i> ${errors.excerpt}`;
-            }
-            if (errors.featured_image) {
-              document.getElementById('image_error').innerHTML = `<i class="fas fa-exclamation-circle me-1"></i> ${errors.featured_image}`;
-            }
-
-            // Display general error message
-            if (errors.db) {
-              message.innerHTML = `
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                  <i class="fas fa-exclamation-triangle me-2"></i> ${errors.db}
-                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-              `;
-            }
-            window.scrollTo({
-              top: 0,
-              behavior: 'smooth'
-            });
-
-          } else if (response.status == "success") {
-            // Reset form on success
-            form.reset();
-            quill.setContents([]);
-            img_preview.innerHTML = `
+        img_preview.innerHTML = `
               <i class="fas fa-cloud-upload-alt display-4 text-muted mb-2"></i>
               <p class="text-muted">Image preview will appear here</p>
             `;
 
-            // Show success message
-            message.innerHTML = `
-              <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle me-2"></i> ${response.message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-            `;
+      } else if (response.status && response.status == "error" && response.message) {
 
-            // Scroll to top to show message
-            window.scrollTo({
-              top: 0,
-              behavior: 'smooth'
-            });
-          } else {
-            // Show unknown error message
-            message.innerHTML = `
-              <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-triangle me-2"></i> An unknown error occurred!
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-            `;
-          }
-        }
+        showMessage("danger", response.message);
+
+      } else if (response.status && response.status == "error" && response.errors) {
+
+        let errors = response.errors;
+
+        document.getElementById("title_error").innerText = errors.title ?? "";
+        document.getElementById("content_error").innerText = errors.content ?? "";
+        document.getElementById("category_error").innerText = errors.category ?? "";
+        document.getElementById("excerpt_error").innerText = errors.excerpt ?? "";
+        document.getElementById("image_error").innerText = errors.featured_image ?? "";
+
+      } else {
+        showMessage("danger", "Something Went Wrong!");
       }
 
-      xhr.open("POST", "./handler/handler.php", true);
-      xhr.send(formdata);
-    });
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      submit_blog();
+    })
+
+  
   </script>
 </body>
 

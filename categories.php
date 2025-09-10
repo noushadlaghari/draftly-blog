@@ -1,5 +1,5 @@
 <?php
-require_once(__DIR__ ."/middlewares/Auth.php");
+
 require_once(__DIR__ ."/controllers/BlogController.php");
 require_once(__DIR__ ."/controllers/CategoriesController.php");
 
@@ -9,7 +9,7 @@ $blogs_by_category = [];
 // Get 3 blogs for each category
 foreach($categories as $category) {
     $blogs = (new BlogController())->findByCategory([
-        "limit" => 3,
+        "limit" => 6,
         "offset" => 0,
         "category_id" => $category['id']
     ]);
@@ -195,7 +195,11 @@ foreach($categories as $category) {
                                             </a>
                                             <p class="card-text text-muted"><?= substr(strip_tags($blog['content']), 0, 100) ?>...</p>
                                             <div class="d-flex align-items-center mt-3">
+                                                <?php if($blog["author_image"]):?>
                                                 <img src="public/<?= $blog['author_image'] ?>" class="author-img me-2" alt="Author">
+                                                <?php else:?>
+                                                    <i class="fa fa-user-circle fs-2 me-2 author-img"></i>
+                                                <?php endif; ?>
                                                 <div>
                                                     <p class="small mb-0 fw-bold"><?= $blog['author'] ?></p>
                                                     <p class="small text-muted mb-0"><?= $blog['created_at'] ?></p>

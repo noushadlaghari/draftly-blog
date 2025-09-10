@@ -19,21 +19,34 @@ class BlogController
         }
 
         $errors   = [];
-        $content = trim(strip_tags($data["content"]));
 
         if (empty(trim($data["title"]))) {
             $errors["title"] = "Title Field is Required!";
+        } else {
+            if (strlen($data["title"]) < 20) {
+                $errors["title"] = "Title Should be atleast 20 Characters!";
+            }
         }
         if (empty(trim($data["category"]))) {
             $errors["category"] = "Category Field is Required!";
         }
-        if (empty(trim($content))) {
+        if (empty(trim($data["content"]))) {
             $errors["content"] = "Content Field is Required!";
+        } else {
+            if (strlen($data["content"]) < 500) {
+                $errors["content"] = "Content Should be Atleast 500 Characters!";
+            }
         }
 
-        if (empty(trim($data["excerpt"]))) {
+        if (empty(trim(strip_tags($data["excerpt"])))) {
             $errors["excerpt"] = "Excerpt Field is Required!";
+        } else {
+
+            if (strlen($data["excerpt"]) < 80 || strlen($data["excerpt"]) > 300) {
+                $errors["excerpt"] = "Excerpt Should be between 80 - 300 Characters";
+            }
         }
+
         if (empty($data["featured_image"]["name"])) {
             $errors["featured_image"] = "Featured Image is Required!";
         }
@@ -44,10 +57,6 @@ class BlogController
 
         if ($file && $file["error"] === 0) {
             $target_dir = __DIR__ . "/../public/images/featured/";
-            // ensure folder exists
-            if (!file_exists($target_dir)) {
-                mkdir($target_dir, 0777, true);
-            }
 
             $imageFileType = strtolower(pathinfo($file["name"], PATHINFO_EXTENSION));
 
@@ -64,6 +73,12 @@ class BlogController
 
                 $errors["featured_image"] = "Only JPG, JPEG & PNG allowed";
             }
+
+            if ($file["size"] > 2 * 1024 * 1024) { // 2MB limit
+                $errors["featured_image"] = "Image must be less than 2MB";
+            }
+
+
 
             // Generate unique filename
             $newFileName = uniqid("blog_", true) . "." . $imageFileType;
@@ -84,16 +99,31 @@ class BlogController
             ];
         }
 
+        $user_id = $_SESSION["id"];
+        $user = (new User())->findById($user_id);
 
-        $user_id = $_SESSION["id"]; // fallback if not logged in
+        if ($user["email_verified"] == "false") {
+            return [
+                "status" => "error",
+                "message" => "Please Verify Email First!"
+            ];
+        }
+
+        $sanitized_data = [
+            "title" => strip_tags(trim($data["title"])),
+            "content" => trim($data["content"]),
+            "category" => strip_tags(trim($data["category"])),
+            "excerpt" => strip_tags(trim($data["excerpt"])),
+            "featured_image" => strip_tags($featured_image)
+        ];
 
         $blog = new Blog();
         $blog->user_id = $user_id;
-        $blog->title = $data["title"];
-        $blog->content = $data["content"];
-        $blog->excerpt = $data["excerpt"];
-        $blog->category = $data["category"];
-        $blog->featured_image = $featured_image;
+        $blog->title = $sanitized_data["title"];
+        $blog->content = $sanitized_data["content"];
+        $blog->excerpt = $sanitized_data["excerpt"];
+        $blog->category = $sanitized_data["category"];
+        $blog->featured_image = $sanitized_data["featured_image"];
 
         if ($blog->create()) {
             return [
@@ -108,7 +138,7 @@ class BlogController
         }
     }
 
-    public function findAll($data= array())
+    public function findAll($data = array())
     {
         $blogModel = new Blog();
 
@@ -125,13 +155,13 @@ class BlogController
             } else {
                 return [
                     "status" => "error",
-                    "message" => "Not Found",
+                    "message" => "No Blogs Found!",
                     "code" => 404
                 ];
             }
         }
 
-        $blogs = $blogModel->findAll($data["offset"]);
+        $blogs = $blogModel->findAll($data["offset"] ?? 0);
 
         if ($blogs && count($blogs["blogs"]) > 0) {
             return [
@@ -142,41 +172,53 @@ class BlogController
         }
         return [
             "status" => "error",
-            "message" => "Not Found!",
+            "message" => "No Blogs Found!",
             "code" => 404
         ];
     }
 
-    public function topBlogs(){
+    public function topBlogs()
+    {
         $blogModel = new Blog();
         $blogs = $blogModel->topBlogs();
 
         if ($blogs && count($blogs) > 0) {
             return [
-                "status"=> "success",
-                "blogs"=> $blogs,
+                "status" => "success",
+                "blogs" => $blogs
             ];
-        }else{
+        } else {
             return [
-                "status"=> "error",
-                "message"=> "Not Found!",
-                "code"=> 404
+                "status" => "error",
+                "message" => "Not Found!",
+                "code" => 404
             ];
         }
     }
     public function count()
     {
         $count = (new Blog())->count();
-        
+
         return $count;
     }
 
-    public function addView($id){
+    public function addView($id)
+    {
         $blogModel = new Blog();
-        if($blogModel->addView($id)){
+        $blog = $blogModel->findById($id);
+
+        if (!$blog) {
             return [
-                "status"=> "success",
-                "message"=> "View Added",
+                "status" => "error",
+                "message" => "Blog Not Found!",
+                "code" => 404
+            ];
+        }
+
+        if ($blogModel->addView($id)) {
+            return [
+                "status" => "success",
+                "message" => "View Added",
             ];
         }
     }
@@ -185,25 +227,35 @@ class BlogController
     {
         $blog = (new Blog())->findById($id);
         if ($blog) {
-            return $blog;
+            return [
+                "status" => "success",
+                "blog" => $blog,
+            ];
         }
-        return false;
+        return [
+            "status" => "error",
+            "message" => "Blog Not Found",
+            "code" => 404
+        ];
     }
     public function findFeatured()
     {
-        $featured = (new Blog())->findFeatured();
-        if (count($featured) > 0) {
+        $blogs = (new Blog())->findFeatured();
+        if (count($blogs) > 0) {
             return [
-                "status"=> "success",
-                "featured"=> $featured
+                "status" => "success",
+                "blogs" => $blogs
             ];
         }
-        return false;
+        return [
+            "status" => "error",
+            "message" => "No Featured Blogs Found!",
+            "code" => 404
+        ];
     }
 
     public function findByCategory($data)
     {
-
 
         $blog = (new Blog())->findByCategory($data);
         if ($blog) {
@@ -216,30 +268,34 @@ class BlogController
 
         return [
             "status" => "error",
-            "message" => "Not Found!",
+            "message" => "Blogs Not Found!",
             "code" => 404
         ];
     }
     public function findByUserId($id = null)
     {
-        if (!$id) {
+        if (!$id || $id == null) {
 
-            $id = $_SESSION["id"];
+            return [
+                "status" => "error",
+                "message" => "Blogs Not Found!",
+                "code" => 404
+            ];
         }
 
         $blogs = (new Blog())->findByUserId($id);
         if (count($blogs["blogs"]) > 0) {
             return [
-                "status"=> "success",
-                "blogs"=> $blogs["blogs"],
-                "total"=> $blogs["total"]
+                "status" => "success",
+                "blogs" => $blogs["blogs"],
+                "total" => $blogs["total"]
             ];
         } else {
 
             return [
-                "status"=> "error",
-                "message"=> "Not Found!",
-                "code"=> 404
+                "status" => "error",
+                "message" => "Blogs Not Found!",
+                "code" => 404
             ];
         }
     }

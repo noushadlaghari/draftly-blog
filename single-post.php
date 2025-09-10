@@ -3,9 +3,9 @@ require_once(__DIR__ . "/controllers/BlogController.php");
 
 if (isset($_GET["id"])) {
   $controller = new BlogController();
-  $blog = $controller->findById($_GET["id"]);
+  $blog = $controller->findById($_GET["id"])["blog"];
 
-  if (isset($blog["error"])) {
+  if (empty($blog)) {
     header("location: not-found.php");
     exit;
   }

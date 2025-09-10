@@ -36,7 +36,7 @@ class UserController
         if (empty($data["email"])) {
             $errors["email"] = "Email field is required!";
         } else {
-            if ($this->validate_email($data["email"])) {
+            if (!$this->validate_email($data["email"])) {
                 $errors["email"] = "Invalid Email!";
             }
         }
@@ -358,9 +358,9 @@ class UserController
     {
 
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return false;
-        } else {
             return true;
+        } else {
+            return false;
         }
     }
 

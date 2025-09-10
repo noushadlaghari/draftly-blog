@@ -9,28 +9,45 @@ class ContactsController
     {
 
         $errors = array();
-        if (empty($data["name"])) {
-            $errors["name"] = "Name Field is Required!";
+        if (empty(trim($data["name"]))) {
+            $errors["name"] = "Name field is required!";
         }
-        if (empty($data["email"])) {
-            $errors["email"] = "Email Field is Required!";
+        if (empty(trim($data["email"]))) {
+            $errors["email"] = "Email field is required!";
+        } else {
+            if (!$this->validate_email($data["email"])) {
+                $errors["email"] = "Enter a valid email!";
+            }
         }
-        if (empty($data["subject"])) {
+
+        if (empty(trim($data["subject"]))) {
             $errors["subject"] = "Subject field is required!";
         }
-        if (empty($data["message"])) {
+
+        if (empty(trim($data["message"]))) {
             $errors["message"] = "Message field is required!";
+        } else {
+            if (strlen($data["message"]) < 50) {
+                $errors["message"] = "Message should be atleast 50 characters!";
+            }
         }
 
         if (!empty($errors)) {
             return [
-                "status" => "errors",
+                "status" => "error",
                 "errors" => $errors
             ];
         }
+
+        $sanitized_data = [
+            "name"    => htmlspecialchars(strip_tags($data["name"]), ENT_QUOTES, 'UTF-8'),
+            "email"   => htmlspecialchars(strip_tags($data["email"]), ENT_QUOTES, 'UTF-8'),
+            "subject" => htmlspecialchars(strip_tags($data["subject"]), ENT_QUOTES, 'UTF-8'),
+            "message" => htmlspecialchars(strip_tags($data["message"]), ENT_QUOTES, 'UTF-8')
+        ];
         $Contact = new Contact();
 
-        if ($Contact->create($data)) {
+        if ($Contact->create($sanitized_data)) {
             return [
                 "status" => "success",
                 "message" => "Your Query is Submitted Successfully You'll get Response soon on given email."
@@ -61,10 +78,10 @@ class ContactsController
             ];
         }
     }
-       public function count()
+    public function count()
     {
         $count = (new Contact())->count();
-        
+
         return $count;
     }
 
@@ -76,7 +93,7 @@ class ContactsController
             return [
                 "status" => "success",
                 "data" => $data["data"],
-                "total"=> $data["total"]
+                "total" => $data["total"]
             ];
         } else {
             return [
@@ -130,6 +147,16 @@ class ContactsController
                 "status" => "error",
                 "message" => "Unable to Deleted Entry!"
             ];
+        }
+    }
+
+    private function validate_email($email)
+    {
+
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return true;
+        } else {
+            return false;
         }
     }
 }

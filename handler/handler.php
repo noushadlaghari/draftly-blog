@@ -101,11 +101,6 @@ if ($controller=="BlogController") {
             echo json_encode($controller->findAll($data));
             break;
 
-        case "getByTitle":
-            $title = $_POST["query"];
-            echo json_encode($controller->findByTitle($title));
-            break;
-
         case "findByCategory":
             $data = [
                 "category_id"=>$_REQUEST["category_id"],
@@ -162,5 +157,22 @@ if ($controller=="CommentsController") {
 
 }
 
-if (isset($_REQUEST["ContactController"])) {
+if ($controller == "ContactsController") {
+
+    require_once(__DIR__ ."/../controllers/ContactsController.php");
+    $contact_controller = new ContactsController();
+
+    switch($action){
+        case "create":
+            $data = [
+                "name"=>$_POST["name"]??"",
+                "email"=>$_POST["email"]??"",
+                "subject"=>$_POST["subject"]??"",
+                "message"=>$_POST["message"]??""
+                ];
+                
+            echo json_encode($contact_controller->create($data));
+            break;
+
+    }
 }

@@ -14,14 +14,14 @@ class Contact
 
     public function create($data)
     {
-
         $sql = "INSERT INTO contacts(name,email,subject,message) VALUES(?,?,?,?)";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("ssss", $data["name"], $data["email"], $data["subject"], $data["message"]);
-        $stmt->execute();
-        if ($stmt->affected_rows > 0) {
+        if ($stmt->execute() && $stmt->affected_rows > 0) {
+            $stmt->close();
             return true;
         }
+        $stmt->close();
         return false;
     }
     public function findById($id)
@@ -49,23 +49,23 @@ class Contact
         $stmt = $this->conn->prepare($count_query);
         $stmt->execute();
         $result = $stmt->get_result();
-        $total = $result->fetch_assoc()["total"]??0;
+        $total = $result->fetch_assoc()["total"] ?? 0;
 
         return [
-            "total"=> $total,
-            "data"=> $data
+            "total" => $total,
+            "data" => $data
         ];
     }
 
-        public function count(){
+    public function count()
+    {
         $sql = "SELECT COUNT(*) as total FROM contacts";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
         $result = $stmt->get_result();
-        $total = $result->fetch_assoc()["total"]??0;
+        $total = $result->fetch_assoc()["total"] ?? 0;
 
         return $total;
-
     }
     public function updateStatus($data)
     {
