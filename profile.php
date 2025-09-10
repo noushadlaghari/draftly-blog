@@ -382,11 +382,12 @@ if (!$user) {
       let blog_container = document.querySelector(".blog-container");
       let xhr = new XMLHttpRequest();
       let formdata = new FormData();
-      formdata.append("action", "findByUserId");
+      formdata.append("action", "FindMyBlogs");
       formdata.append("controller", "BlogController");
 
       xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
+
           let response = JSON.parse(xhr.responseText);
 
           if (response.status!="error") {

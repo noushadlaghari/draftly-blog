@@ -157,9 +157,8 @@ class Blog
         $result = $stmt->get_result();
         if ($result->num_rows > 0) {
             return $result->fetch_assoc();
-        } else {
-            return false;
-        }
+        } 
+        return [];
     }
 
     public function findByUserId($id)

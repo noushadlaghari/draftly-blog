@@ -2,6 +2,8 @@
 
 
 require_once(__DIR__ . "/../models/Comment.php");
+require_once(__DIR__ . "/../models/Blog.php");
+require_once(__DIR__ . "/../middlewares/Auth.php");
 
 
 class CommentsController
@@ -10,16 +12,46 @@ class CommentsController
     public function create($data)
     {
 
-        session_start();
+        if (!Auth()) {
+            return [
+                "status" => "error",
+                "message" => "Login first to Add Comment!",
+                "code" => 401
+
+            ];
+        }
+
+
+        $errors = array();
+        if (empty(trim($data["content"]))) {
+            $errors["comment"] = "Comment Field is Required!";
+        }
+
+        if (!empty($errors)) {
+            return [
+                "status" => "error",
+                "errors" => $errors
+            ];
+        }
+
+        $blog = (new Blog())->findById($data["blog_id"]);
+
+        if (!$blog || empty($blog)) {
+            return [
+                "status" => "error",
+                "message" => "Blog Not Found!"
+            ];
+        }
+
         $comment = new Comment();
         $comment->user_id = $_SESSION["id"];
-        $comment->content = $data["content"];
+        $comment->content = strip_tags($data["content"]);
         $comment->blog_id = $data["blog_id"];
 
         if ($comment->create()) {
             return [
                 "status" => "success",
-                "message" => "Comment Added Successfully!"
+                "message" => "Comment Successfully Submitted For Approval!"
             ];
         } else {
             return [
@@ -30,16 +62,16 @@ class CommentsController
     }
 
 
-    public function findAll($offset = 0,$limit = 8)
+    public function findAll($offset = 0, $limit = 8)
     {
-      $comments = (new Comment())->findAll($offset, $limit);
-      
+        $comments = (new Comment())->findAll($offset, $limit);
+
 
         if (count($comments) > 0) {
             return [
                 "status" => "success",
                 "comments" => $comments["comments"],
-                "total"=> $comments["total"],
+                "total" => $comments["total"],
             ];
         } else {
             return [
@@ -50,22 +82,30 @@ class CommentsController
         }
     }
 
-       public function count()
+    public function count()
     {
         $count = (new Comment())->count();
-        
+
         return $count;
     }
-    
+
     public function findByBlogId($id)
     {
 
-        $comment = (new Comment())->findByBlogId($id);
-        if ($comment) {
-            return $comment;
-        } else {
-            return false;
-        }
+        $comments = (new Comment())->findByBlogId($id);
+        if ($comments && count($comments["comments"]) > 0) {
+            return [
+                "status"=> "success",
+                "comments"=> $comments["comments"],
+                "total"=> $comments["total"]
+            ];
+           
+        } 
+        return [
+            "status"=> "error",
+            "message"=> "Comments Not Found!",
+            "code"=> 404
+        ];
     }
     public function findById($id)
     {
@@ -104,28 +144,28 @@ class CommentsController
         }
     }
 
-    public function approve($id){
+    public function approve($id)
+    {
         $commentModel = new Comment();
         $comment = (new Comment())->findById($id);
         if (count($comment) > 0) {
-            
-            if($commentModel->approve($id)) {
-                return [
-                    "status"=> "success",
-                    "message"=> "Comment Approved Successfully!"
-                    ];
-            }else{
-                return [
-                    "status"=> "error",
-                    "message"=> "Unkown Error During Comment Approval!"
-                    ];
-            }
 
-        }else{
+            if ($commentModel->approve($id)) {
+                return [
+                    "status" => "success",
+                    "message" => "Comment Approved Successfully!"
+                ];
+            } else {
+                return [
+                    "status" => "error",
+                    "message" => "Unkown Error During Comment Approval!"
+                ];
+            }
+        } else {
             return [
-                "status"=>"error",
-                "message"=> "Comment Not Found!",
-                "code"=> 404
+                "status" => "error",
+                "message" => "Comment Not Found!",
+                "code" => 404
             ];
         }
     }
@@ -136,26 +176,24 @@ class CommentsController
 
         $comment = (new Comment())->findById($id);
 
-        if(count($comment) > 0) {
-            if($commentModel->delete($id)) {
+        if (count($comment) > 0) {
+            if ($commentModel->delete($id)) {
                 return [
-                    "status"=> "success",
-                    "message"=> "Comment Deleted Successfully!"
-                    ];
-            }else{
+                    "status" => "success",
+                    "message" => "Comment Deleted Successfully!"
+                ];
+            } else {
                 return [
-                    "status"=> "error",
-                    "message"=> "Unknown Error During Delete!"
-                    ];
-                }
-
-        }else{
-            return [
-                "status"=> "error",
-                "message"=> "Comment Not Found!",
-                "code"=> 404
+                    "status" => "error",
+                    "message" => "Unknown Error During Delete!"
                 ];
             }
-
+        } else {
+            return [
+                "status" => "error",
+                "message" => "Comment Not Found!",
+                "code" => 404
+            ];
+        }
     }
 }

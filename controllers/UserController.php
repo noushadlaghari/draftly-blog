@@ -84,7 +84,7 @@ class UserController
 
             if ($user) {
 
-                if ($data["password"] == $user["password"]) {
+                if (password_verify($data["password"], $user["password"])) {
 
 
                     $_SESSION["id"] = $user["id"];
@@ -314,7 +314,9 @@ class UserController
 
         if (empty($data["current_password"])) {
             $errors["current_password"] = "Current password is required!";
-        } else if ($data["current_password"] != $user["password"]) {
+
+
+        } else if (!password_verify($data["current_password"], $user["password"])) {
             $errors["current_password"] = "Incorrect Current Password";
         }
 
@@ -341,7 +343,9 @@ class UserController
 
         $user = new User();
 
-        if ($user->update_password($id, $data)) {
+        $hash_password = password_hash($data["new_password"], PASSWORD_DEFAULT);
+
+        if ($user->update_password($id, $hash_password)) {
             return [
                 "status" => "success",
                 "message" => "Password Updated Successfully!"

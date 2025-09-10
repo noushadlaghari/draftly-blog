@@ -88,7 +88,13 @@ if ($controller=="BlogController") {
             break;
 
         case "findByUserId":
-            echo json_encode($controller->findByUserId());
+            $user_id = $_POST["user_id"]??null;
+            echo json_encode($controller->findByUserId($user_id));
+            break;
+            
+        case "FindMyBlogs":
+            $user_id = $_SESSION["id"]??null;
+            echo json_encode($controller->findByUserId($user_id));
             break;
 
         case "findAll":
@@ -104,8 +110,8 @@ if ($controller=="BlogController") {
         case "findByCategory":
             $data = [
                 "category_id"=>$_REQUEST["category_id"],
-                "offset"=> $_REQUEST["offset"],
-                "limit"=> $_REQUEST["limit"]
+                "offset"=> $_REQUEST["offset"]??0,
+                "limit"=> $_REQUEST["limit"]??6
             ];
            
             echo json_encode($controller->findByCategory($data));
@@ -129,11 +135,6 @@ if ($controller=="BlogController") {
     }
 }
 
-if ($controller == "CategoriesController") {
-
-
-}
-
 if ($controller=="CommentsController") {
 
     require_once(__DIR__."/../controllers/CommentsController.php");
@@ -148,7 +149,7 @@ if ($controller=="CommentsController") {
             echo json_encode($controller->create($data));
             break;
 
-        case "findAll":
+        case "findByBlogId":
             $blog_id = $_POST["blog_id"];
             echo json_encode($controller->findByBlogId($blog_id));
             break;

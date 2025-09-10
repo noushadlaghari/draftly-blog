@@ -123,6 +123,7 @@ $featured_blogs = (new BlogController())->findFeatured()["blogs"];
     .badge.bg-primary {
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
     }
+    
   </style>
 </head>
 <body>

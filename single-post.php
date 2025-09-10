@@ -1,5 +1,6 @@
 <?php
 require_once(__DIR__ . "/controllers/BlogController.php");
+require_once(__DIR__ . "/controllers/CommentsController.php");
 
 if (isset($_GET["id"])) {
   $controller = new BlogController();
@@ -9,13 +10,15 @@ if (isset($_GET["id"])) {
     header("location: not-found.php");
     exit;
   }
-
   $cookieName = "viewed_blog_" . $blog["id"];
 
   if (!isset($_COOKIE[$cookieName])) {
     $controller->addView($blog["id"]);
-    setcookie($cookieName, "1", time() + 86400, "/");
+    setcookie($cookieName, "1", time() + 86400, "/", "", false, true);
   }
+
+  $comments = (new CommentsController())->findByBlogId($blog["id"]);
+  $total_comments = $comments["total"] ?? 0;
 
   $related = $controller->findByCategory(["category_id" => $blog["category_id"], "limit" => 6, "offset" => 0]);
 } else {
@@ -35,6 +38,7 @@ if (isset($_GET["id"])) {
   <link rel="icon" type="image/png" href="./assets/images/favicon.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta name="description" content="<?= substr(htmlspecialchars(strip_tags($blog["excerpt"] ?? "")), 0, 160) ?>">
   <style>
     :root {
       --primary: #6f42c1;
@@ -285,7 +289,12 @@ if (isset($_GET["id"])) {
     .badge.bg-primary {
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
     }
+
+    .error {
+      color: red;
+    }
   </style>
+
 </head>
 
 <body>
@@ -302,11 +311,11 @@ if (isset($_GET["id"])) {
     <div class="container">
       <h1 id="blog-title"><?= $blog["title"] ?></h1>
       <div class="blog-meta">
-        
+
         <span><i class="fas fa-user"></i> By <a href="author.php?user_id=<?= $blog["user_id"] ?>"><strong><?= $blog["username"] ?></strong></a></span> •
-        <span><i class="fas fa-calendar"></i> <?= date('F j, Y', strtotime($blog["created_at"])) ?></span> •  
-        
-          <span id="views-count"><i class="fas fa-eye"></i><?= $blog["views_count"] ?> views</span> •  
+        <span><i class="fas fa-calendar"></i> <?= date('F j, Y', strtotime($blog["created_at"])) ?></span> •
+
+        <span id="views-count"><i class="fas fa-eye"></i><?= $blog["views_count"] ?> views</span> •
         <span><i class="fas fa-clock"></i> <?= max(1, round(str_word_count($blog["content"]) / 120)) ?> min read
         </span>
       </div>
@@ -324,17 +333,34 @@ if (isset($_GET["id"])) {
 
         <!-- Comments Section -->
         <div class="comment-box" id="comment-box">
-          <h3><i class="fas fa-comments me-2"></i>Comments</h3>
+          <h3><i class="fas fa-comments me-2"></i>Comments(<?= $total_comments ?>)</h3>
 
           <!-- Existing Comments will be loaded here -->
-        </div>
 
+          <?php if ($comments && isset($comments["comments"])): ?>
+            <?php foreach ($comments["comments"] as $comment): ?>
+              <div class="comment">
+                <strong><?= htmlspecialchars($comment["author"]) ?>:</strong>
+                <p class="mb-0 mt-1"><?= htmlspecialchars($comment["content"]) ?></p>
+                <small class="text-muted">
+                  <?= date("F j, Y \\a\\t g:i A", strtotime($comment["created_at"])) ?>
+                </small>
+              </div>
+            <?php endforeach; ?>
+          <?php else: ?>
+            <p class="text-muted">No comments yet. Be the first to share your thoughts!</p>
+          <?php endif; ?>
+
+
+        </div>
         <!-- Add Comment Form -->
         <div class="mt-4">
           <h4><i class="fas fa-edit me-2"></i>Add a Comment</h4>
           <form id="form">
             <div class="mb-3">
-              <textarea class="form-control" rows="4" name="comment" placeholder="Share your thoughts..."></textarea>
+              <textarea class="form-control" rows="4" name="comment" placeholder="Share your thoughts..." required></textarea>
+
+              <div id="comment_error" class="error"></div>
             </div>
             <input type="hidden" name="blog_id" value="<?= $_GET["id"] ?>">
             <div id="message" class="text-success"></div>
@@ -382,88 +408,45 @@ if (isset($_GET["id"])) {
     ?>
   </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-
+  <script src="./js/define.js"></script>
   <script>
-    function loadComments() {
-      let commentBox = document.getElementById("comment-box");
-      let urlparams = new URLSearchParams(window.location.search);
-      let blog_id = urlparams.get("id");
-
-      let formdata = new FormData();
+    let form = document.getElementById("form");
+    async function submitComment() {
+      let formdata = new FormData(form);
+      formdata.append("action", "create");
       formdata.append("controller", "CommentsController");
-      formdata.append("action", "findAll");
-      formdata.append("blog_id", blog_id);
 
-      let xhr = new XMLHttpRequest();
+      let response = await request("./handler/handler.php", formdata);
 
-      xhr.onreadystatechange = () => {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-          let response = JSON.parse(xhr.responseText);
-
-          if (response && response.length > 0) {
-            let commentsHTML = '';
-            response.forEach(comment => {
-              commentsHTML += `
-              <div class="comment">
-                <strong>${comment.author}:</strong> 
-                <p class="mb-0 mt-1">${comment.content}</p>
-                <small class="text-muted">${new Date(comment.created_at).toLocaleDateString()}</small>
-              </div>
-              `;
-            });
-            commentBox.innerHTML += commentsHTML;
-          } else {
-            commentBox.innerHTML += `<p class="text-muted">No comments yet. Be the first to share your thoughts!</p>`;
-          }
-        }
+      if (!response) {
+        showMessage("danger", "Something Went Wrong!");
+        return;
       }
 
-      xhr.open("POST", "./handler/handler.php", true);
-      xhr.send(formdata);
+      if (response.status && response.status == "success") {
+
+        showMessage("success", response.message);
+        form.reset();
+
+      } else if (response.status && response.errors) {
+
+        document.getElementById("comment_error").innerText = response.errors.comment ?? "";
+
+      } else if (response.status && response.status == "error" && response.message) {
+        showMessage("danger", response.message)
+      } else {
+        showMessage("danger", "Something Went Wrong!");
+      }
+
     }
 
-    // Load comments when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-      loadComments();
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
 
-      // Add comment form submission
-      let form = document.getElementById("form");
-      let message = document.getElementById("message");
-
-      form.addEventListener("submit", function(e) {
-        e.preventDefault();
-
-        let formdata = new FormData(form);
-        formdata.append("action", "create");
-        formdata.append("controller", "CommentsController");
-
-        let xhr = new XMLHttpRequest();
-
-        xhr.onreadystatechange = function() {
-          if (xhr.readyState == 4 && xhr.status == 200) {
-            let response = JSON.parse(xhr.responseText);
-
-            if (response && response.status == "success") {
-              message.innerHTML = `<i class="fas fa-check-circle me-1"></i> ${response.message}`;
-              form.reset();
-              // Reload comments
-              let commentBox = document.getElementById("comment-box");
-              commentBox.querySelectorAll('.comment').forEach(el => el.remove());
-              loadComments();
-
-              setTimeout(() => {
-                message.innerHTML = "";
-              }, 3000);
-            }
-          }
-        };
-
-        xhr.open("POST", "./handler/handler.php", true);
-        xhr.send(formdata);
-      });
-    });
+      submitComment();
+    })
   </script>
 
 </body>

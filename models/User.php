@@ -158,12 +158,12 @@ class User
     }
 
 
-    public function update_password($id, $data)
+    public function update_password($id, $password)
     {
 
         $sql = "UPDATE users SET password = ? WHERE id=?";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("si", $data["new_password"], $id);
+        $stmt->bind_param("si", $password, $id);
         $stmt->execute();
         if ($stmt->affected_rows > 0) {
             return $this;

@@ -157,9 +157,6 @@
       }
     }
 
-    h1, h2, h5, h6 {
-      color: var(--text-primary);
-    }
 
     a {
       color: var(--primary);
@@ -183,7 +180,7 @@
   <!-- Hero Section -->
   <section class="contact-hero">
     <div class="container">
-      <h1 class="display-5 fw-bold">Get in Touch</h1>
+      <h1 class="display-5 fw-bold text-white">Get in Touch</h1>
       <p class="lead">We'd love to hear from you. Reach out to us with any questions or feedback.</p>
     </div>
   </section>

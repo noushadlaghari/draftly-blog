@@ -7,11 +7,12 @@ if (isset($_GET["user_id"])) {
     $user_id = $_GET["user_id"];
     $user = (new UserController())->findById($user_id);
     if (!$user) {
-
         header("location: not-found.php");
     }
 
     $blogs = (new BlogController())->findByUserId($user_id);
+    $total_blogs = $blogs["total"];
+    
 }
 
 ?>
@@ -181,7 +182,7 @@ if (isset($_GET["user_id"])) {
                     <h1 class="fw-bold mb-1"><?= $user["name"] ?></h1>
                     <p class="mb-2"><?= $user["bio"] ?></p>
                     <p class="mb-0"><i class="fas fa-map-marker-alt me-2"></i> <?= $user["address"] ?? "Pakistan" ?></p>
-                    <p class="mb-2">Total Articles: 24</p>
+                    <p class="mb-2">Total Articles: <?=$total_blogs??0?></p>
                     <p class="mb-2">Joined: <?=$user["created_at"]?></p>
                 </div>
 
@@ -210,8 +211,8 @@ if (isset($_GET["user_id"])) {
 
                 <?php
 
-                if (!empty($blogs)) {
-                    foreach ($blogs as $blog) {
+                if (!empty($blogs) && isset($blogs["blogs"])) {
+                    foreach ($blogs["blogs"] as $blog) {
                 ?>
 
                         <div class="col-md-4">

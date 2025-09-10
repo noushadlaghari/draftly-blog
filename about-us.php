@@ -221,17 +221,17 @@ require_once("./middlewares/auth.php");
       <div class="row">
         <div class="col-md-4 team-member">
           <img src="https://via.placeholder.com/150" alt="Team Member" class="team-img">
-          <h5>John Doe</h5>
+          <h5>Noshad Laghari</h5>
           <p>Founder & CEO</p>
         </div>
         <div class="col-md-4 team-member">
           <img src="https://via.placeholder.com/150" alt="Team Member" class="team-img">
-          <h5>Jane Smith</h5>
+          <h5>Mahram Ali</h5>
           <p>Lead Developer</p>
         </div>
         <div class="col-md-4 team-member">
           <img src="https://via.placeholder.com/150" alt="Team Member" class="team-img">
-          <h5>Mike Johnson</h5>
+          <h5>Zeeshan</h5>
           <p>Community Manager</p>
         </div>
       </div>
