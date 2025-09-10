@@ -4,7 +4,7 @@ require_once("./controllers/CategoriesController.php");
 require_once("./controllers/BlogController.php");
 
 $categogies_controller = new CategoriesController();
-$categories = $categogies_controller->findAll()["categories"];
+$categories = $categogies_controller->findAll(0,50)["categories"];
 
 $id = $_GET["id"] ?? null;
 $blog = (new BlogController())->findById($id);
@@ -119,6 +119,14 @@ $blog = (new BlogController())->findById($id);
         width: 95% !important;
       }
     }
+
+      .ql-editor {
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text-primary);
+    }
+    
   </style>
 </head>
 
@@ -185,7 +193,7 @@ $blog = (new BlogController())->findById($id);
               <i class="fas fa-file-lines"></i>
               Excerpt(80-200 chars)
             </h4>
-            <input type="text" class="form-control form-control-lg" min="80" max="200" name="excerpt" placeholder="Short Description 80 - 200 characters">
+            <input type="text" class="form-control form-control-lg" min="80" max="200" name="excerpt" value="<?=$blog["excerpt"]?>" placeholder="Short Description 80 - 200 characters">
             <div class="error" id="excerpt_error"></div>
           </div>
 
@@ -279,16 +287,18 @@ $blog = (new BlogController())->findById($id);
 
       xhr.onreadystatechange = () => {
         if (xhr.status == 200 && xhr.readyState == 4) {
+        
           let response = JSON.parse(xhr.responseText);
+
 
           if (response.status == "error") {
             let errors = response.errors;
 
-            title_error.innerHTML = errors.title || "";
-            category_error.innerHTML = errors.category || "";
-            content_error.innerHTML = errors.content || "";
-            excerpt_error.innerHTML = errors.excerpt || "";
-            img_error.innerHTML = errors.featured_image || "";
+            title_error.innerHTML = errors.title ?? "";
+            category_error.innerHTML = errors.category ?? "";
+            content_error.innerHTML = errors.content ?? "";
+            excerpt_error.innerHTML = errors.excerpt ?? "";
+            img_error.innerHTML = errors.featured_image ?? "";
 
             if (errors.db) {
               message.innerHTML = `
@@ -303,6 +313,7 @@ $blog = (new BlogController())->findById($id);
            title_error.innerHTML = "";
             category_error.innerHTML = "";
             content_error.innerHTML = "";
+            excerpt_error.innerHTML = "";
             img_error.innerHTML = "";
 
             message.innerHTML = `

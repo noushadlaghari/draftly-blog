@@ -119,10 +119,11 @@ if ($controller=="BlogController") {
         case "update":
             $id = $_POST["id"];
             $data = [
-                "title" => $_POST["title"],
-                "content" => $_POST["content"],
+                "title" => $_POST["title"]??"",
+                "content" => $_POST["content"]??"",
+                "excerpt"=> $_POST["excerpt"]??"",
                 "featured_image" => $_FILES["featured_image"]??"",
-                "category" => $_POST["category"],
+                "category" => $_POST["category"]??"",
             ];
             echo json_encode($controller->update($id, $data));
             break;
